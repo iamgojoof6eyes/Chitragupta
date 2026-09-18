@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chitragupta — AI Bookmark Organizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            <path d="M12 7v6"></path>
+            <path d="M9 10h6"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">Chitragupta</span>
+          <span class="brand-subtitle">AI Bookmark Organizer</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div id="ai-status-pill" class="status-pill offline" title="Backend AI status">
+          <span class="status-dot"></span>
+          <span id="ai-status-text">Rules Mode</span>
+        </div>
+        <button id="btn-options" class="icon-btn" title="Settings & Options">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-tab="tab-save">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+        Save Page
+      </button>
+      <button class="nav-tab" data-tab="tab-organize">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+        Organize
+      </button>
+      <button class="nav-tab" data-tab="tab-explore">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+        Bookmarks
+      </button>
+    </nav>
+
+    <!-- Notification Toast -->
+    <div id="toast-message" class="toast hidden"></div>
+
+    <!-- TAB 1: SAVE PAGE -->
+    <section id="tab-save" class="tab-pane active">
+      <div class="card current-page-card">
+        <div class="card-title-bar">
+          <span class="card-label">Current Active Page</span>
+          <span id="save-detected-badge" class="badge-cat">Detecting...</span>
+        </div>
+
+        <div class="page-meta">
+          <img id="page-favicon" class="page-favicon" src="../icons/icon16.png" alt="Favicon">
+          <div class="page-inputs">
+            <input type="text" id="input-title" class="input-field" placeholder="Page Title">
+            <input type="text" id="input-url" class="input-field-sub" readonly placeholder="https://...">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="select-folder" class="field-label">Save To Folder</label>
+          <div class="folder-select-row">
+            <select id="select-folder" class="select-field">
+              <option value="1" selected>📌 Bookmarks Bar (Root)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="input-tags" class="field-label">Suggested Tags</label>
+          <div id="tag-pills" class="tag-container">
+            <!-- Dynamically populated tags -->
+          </div>
+          <input type="text" id="input-tags" class="input-field-tags" placeholder="Add custom tags separated by commas...">
+        </div>
+
+        <button id="btn-save-bookmark" class="btn-primary glow-btn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+          Save Bookmark
+        </button>
+      </div>
+    </section>
+
+    <!-- TAB 2: ORGANIZE BOOKMARKS -->
+    <section id="tab-organize" class="tab-pane">
+      <!-- Stats Overview -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-val" id="stat-total-bookmarks">0</span>
+          <span class="stat-lbl">Bookmarks</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-val" id="stat-total-folders">0</span>
+          <span class="stat-lbl">Folders</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-val" id="stat-duplicates">0</span>
+          <span class="stat-lbl">Duplicates</span>
+        </div>
+      </div>
+
+      <!-- Baseline Snapshot & Rollback Card -->
+      <div class="card snapshot-card">
+        <div class="card-title-bar">
+          <div class="card-title-group">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-accent">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+            <span class="card-label">Tree Baseline & Rollback</span>
+          </div>
+          <span id="saved-tree-badge" class="badge-snapshot">No Baseline Saved</span>
+        </div>
+        <p class="snapshot-desc">Save your current bookmark structure as a baseline to roll back to anytime.</p>
+        <div class="snapshot-actions-row">
+          <button id="btn-save-current-tree" class="btn-snapshot btn-save-baseline" title="Save current Bookmarks Bar structure as baseline">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            Save Structure
+          </button>
+          <button id="btn-rollback-saved-tree" class="btn-snapshot btn-rollback" disabled title="Roll back Bookmarks Bar to your saved baseline structure">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+            Roll Back to Saved
+          </button>
+        </div>
+      </div>
+
+      <!-- Scope & Control Panel -->
+      <div id="organize-controls" class="card control-card">
+        <div class="form-group">
+          <label for="select-scope" class="field-label">Organization Scope (Bookmarks Bar)</label>
+          <select id="select-scope" class="select-field">
+            <option value="1" selected>📌 All Bookmarks Bar Folders</option>
+          </select>
+        </div>
+
+        <div class="options-row">
+          <label class="toggle-control">
+            <input type="checkbox" id="check-clean-empty" checked>
+            <span class="toggle-text">Clean empty folders after move</span>
+          </label>
+        </div>
+
+        <button id="btn-analyze" class="btn-primary glow-btn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          Analyze & Propose Structure
+        </button>
+
+        <!-- Snapshot JSON Tools -->
+        <div class="json-backup-bar">
+          <button id="btn-quick-export-json" class="btn-secondary btn-sm" title="Save full bookmark tree JSON to your device">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Export JSON
+          </button>
+          <button id="btn-restore-pristine" class="btn-secondary btn-sm" style="color: #38bdf8; border-color: rgba(56,189,248,0.4);" title="Restore all original 16 folders and 248 bookmarks from clean backup">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+            Restore 16 Folders
+          </button>
+          <label class="btn-secondary btn-sm file-upload-label" title="Restore bookmarks from a previously saved JSON file">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            Restore JSON
+            <input type="file" id="input-restore-json" accept=".json" style="display: none;">
+          </label>
+        </div>
+      </div>
+
+      <!-- Loading / Progress State -->
+      <div id="organize-progress" class="card progress-card hidden">
+        <div class="spinner-orbit"></div>
+        <h4 id="progress-title">Analyzing Bookmarks...</h4>
+        <p id="progress-desc">Applying hybrid rules and AI taxonomy</p>
+        <div class="progress-bar-wrap">
+          <div id="progress-fill" class="progress-bar-fill" style="width: 10%;"></div>
+        </div>
+        <div class="progress-stats-row">
+          <span id="progress-counts-text" class="progress-counts">Preparing bookmarks...</span>
+          <span id="progress-percent-badge" class="progress-pct-badge">10%</span>
+        </div>
+        <button id="btn-stop-organize" class="btn-stop-task" title="Stop and cancel current rearranging process">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+          </svg>
+          Stop Arranging
+        </button>
+      </div>
+
+      <!-- Proposed Plan Preview (The Safety Gate) -->
+      <div id="organize-preview" class="card preview-card hidden">
+        <div class="preview-header">
+          <div class="preview-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <span>Proposed Organization</span>
+          </div>
+          <div id="preview-badge-count" class="badge-count">0 changes</div>
+        </div>
+
+        <!-- Background Arrangement Complete Banner -->
+        <div id="preview-background-banner" class="banner-pending-plan hidden">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-pulse">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <span id="preview-banner-text">Arranging completed while away! Click "Apply Changes" below to reorganize.</span>
+        </div>
+
+        <div class="preview-summary-pills">
+          <span id="pill-new-folders" class="pill pill-add">+ 0 Folders</span>
+          <span id="pill-moves" class="pill pill-move">→ 0 Moves</span>
+          <span id="pill-deletes" class="pill pill-del">- 0 Empty</span>
+        </div>
+
+        <div id="preview-tree-list" class="preview-tree-list">
+          <!-- Populated dynamically with folder hierarchy diffs -->
+        </div>
+
+        <div class="preview-actions">
+          <button id="btn-cancel-plan" class="btn-secondary">Cancel</button>
+          <button id="btn-apply-plan" class="btn-success glow-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Apply Changes
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: BOOKMARKS TREE EXPLORER -->
+    <section id="tab-explore" class="tab-pane">
+      <div class="explorer-header">
+        <div class="search-wrap">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="search-bookmarks" placeholder="Search title or URL...">
+        </div>
+        <button id="btn-refresh-tree" class="icon-btn" title="Refresh Tree">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+        </button>
+      </div>
+
+      <div id="tree-container" class="tree-container">
+        <!-- Rendered Chrome bookmark tree -->
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <span class="source-truth-tag">Chrome Bookmarks API • Source of Truth</span>
+      <span class="version-tag">v1.0</span>
+    </footer>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../api/client.js"></script>
+  <script src="../organizer/bookmark-reader.js"></script>
+  <script src="../organizer/classifier.js"></script>
+  <script src="../organizer/backup.js"></script>
+  <script src="../organizer/organizer.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

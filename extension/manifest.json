@@ -1,0 +1,62 @@
+{
+  "manifest_version": 3,
+  "name": "Chitragupta — AI Chrome Bookmark Organizer",
+  "version": "1.0.0",
+  "description": "Smart Chrome Bookmark Organizer powered by Hybrid Rules and AI. One-click save, automated folder categorization, preview, and safe undo.",
+  "permissions": [
+    "bookmarks",
+    "storage",
+    "tabs",
+    "contextMenus",
+    "notifications"
+  ],
+  "host_permissions": [
+    "http://localhost:8000/*",
+    "http://127.0.0.1:8000/*",
+    "https://generativelanguage.googleapis.com/*",
+    "https://integrate.api.nvidia.com/*"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "Chitragupta Bookmark Organizer"
+  },
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+E",
+        "mac": "Command+Shift+E"
+      },
+      "description": "Open Chitragupta Bookmark Organizer"
+    },
+    "quick_save_bookmark": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S",
+        "mac": "Command+Shift+S"
+      },
+      "description": "Quickly save current tab as bookmark"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["original_bookmarks_restoration.json"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

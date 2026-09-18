@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chitragupta Settings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="settings-container">
+    <header class="settings-header">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            <path d="M12 7v6"></path>
+            <path d="M9 10h6"></path>
+          </svg>
+        </div>
+        <div>
+          <h1>Chitragupta Settings</h1>
+          <p class="subtitle">Configure AI providers, backend servers, and bookmark organization constraints.</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="settings-main">
+      <!-- Section 1: Backend & AI Server -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Local AI Server</h2>
+          <span class="badge" id="backend-status-badge">Checking...</span>
+        </div>
+        <p class="card-desc">
+          Chitragupta uses a local FastAPI server to keep your API keys secure on your machine rather than exposing them in browser code.
+        </p>
+
+        <div class="form-group">
+          <label for="server-url">Server URL</label>
+          <div class="input-with-action">
+            <input type="text" id="server-url" placeholder="http://localhost:8000" value="http://localhost:8000">
+            <button id="btn-test-connection" class="btn-secondary">Test Connection</button>
+          </div>
+          <span id="test-feedback" class="feedback-text"></span>
+        </div>
+      </section>
+
+      <!-- Section 2: AI Provider & Credentials -->
+      <section class="card">
+        <div class="card-header">
+          <h2>AI Intelligence & Models</h2>
+          <span class="badge" id="ai-status-badge">Rules Mode</span>
+        </div>
+        <p class="card-desc">
+          Select which AI backend powers classification for ambiguous bookmarks. If disabled or offline, Chitragupta seamlessly uses its deterministic rule engine.
+        </p>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="ai-provider">Active Provider</label>
+            <select id="ai-provider" class="select-field">
+              <option value="rules">Rules Only (Fastest, Standalone)</option>
+              <option value="gemini">Google Gemini API</option>
+              <option value="nvidia">NVIDIA NIM / Build API</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="ai-model">Model Identifier</label>
+            <input type="text" id="ai-model" placeholder="e.g. gemini-1.5-flash or meta/llama-3.1-70b-instruct">
+          </div>
+        </div>
+
+        <div class="form-group" id="api-key-group">
+          <label for="api-key">API Key</label>
+          <input type="password" id="api-key" placeholder="Enter API Key (saved securely in local storage)">
+          <span class="hint-text">API keys are stored strictly on your local machine and never transmitted to third parties.</span>
+        </div>
+      </section>
+
+      <!-- Section 3: Organization Constraints -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Organization Rules & Safety</h2>
+        </div>
+        <p class="card-desc">
+          Control how folders are created, maximum hierarchy depths, and protect critical personal folders.
+        </p>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="max-depth">Maximum Folder Depth</label>
+            <select id="max-depth" class="select-field">
+              <option value="1">1 (Category Only)</option>
+              <option value="2" selected>2 (Category / Subcategory)</option>
+              <option value="3">3 (Category / Subcategory / Topic)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="min-bookmarks">Min Bookmarks per Subfolder</label>
+            <select id="min-bookmarks" class="select-field">
+              <option value="1">1 (Allow single-item subfolders)</option>
+              <option value="2" selected>2 (Merge single items into parent)</option>
+              <option value="3">3 (Merge fewer than 3 into parent)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="merge-single-subfolders" checked>
+            <span>Merge subfolders with only 1 site directly into parent folder</span>
+          </label>
+          <span class="hint-text">Prevents lonely subfolders by keeping single-site bookmarks directly inside their parent folder.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="excluded-folders">Protected / Excluded Folders</label>
+          <input type="text" id="excluded-folders" placeholder="e.g. Work, Personal, Secret (comma-separated)">
+          <span class="hint-text">Chitragupta will NEVER move, organize, or touch bookmarks inside these folders.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="clean-empty-folders" checked>
+            <span>Automatically delete empty folders left behind after bookmarks are moved</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Section 4: Backup & Data -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Backup & Recovery</h2>
+        </div>
+        <p class="card-desc">
+          Export your current bookmark backup or manage stored snapshot states.
+        </p>
+        <div class="action-buttons-row">
+          <button id="btn-export-backup" class="btn-secondary">Export Last Backup (JSON)</button>
+          <button id="btn-clear-backup" class="btn-secondary danger">Clear Backup History</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="settings-footer">
+      <div id="save-status" class="save-status">All changes saved automatically</div>
+      <button id="btn-save-settings" class="btn-primary">Save Settings</button>
+    </footer>
+  </div>
+
+  <script src="../api/client.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,1215 @@
+[
+  {
+    "id": "0",
+    "title": "",
+    "children": [
+      {
+        "id": "1",
+        "title": "Bookmarks bar",
+        "children": [
+          {
+            "id": "folder_8g4699",
+            "title": "AI ",
+            "children": [
+              {
+                "id": "bm_uuh2su",
+                "title": "NxtMock - Your Next Step Towards Interview Mastery",
+                "url": "https://nxtmock-interview.ccbp.in/"
+              },
+              {
+                "id": "bm_8m6hda",
+                "title": "Suno | AI Music",
+                "url": "https://suno.com/home"
+              },
+              {
+                "id": "bm_7tczu4",
+                "title": "AskCodi",
+                "url": "https://www.askcodi.com/"
+              },
+              {
+                "id": "bm_v7y6ob",
+                "title": "Chat GPT",
+                "url": "https://chat.openai.com/chat"
+              },
+              {
+                "id": "bm_hkhcmt",
+                "title": "code whisperer",
+                "url": "https://aws.amazon.com/codewhisperer/"
+              },
+              {
+                "id": "bm_0x01yu",
+                "title": "Codeium",
+                "url": "https://codeium.com/"
+              },
+              {
+                "id": "bm_ovivrs",
+                "title": "Dashboard – Replicate",
+                "url": "https://replicate.com/"
+              },
+              {
+                "id": "bm_wc3dur",
+                "title": "DeepSeek - Into the Unknown",
+                "url": "https://chat.deepseek.com/"
+              },
+              {
+                "id": "bm_ucqnlb",
+                "title": "Gemini",
+                "url": "https://gemini.google.com/app"
+              },
+              {
+                "id": "bm_mekxjd",
+                "title": "JotBot AI",
+                "url": "https://myjotbot.com/"
+              },
+              {
+                "id": "bm_bqm1rl",
+                "title": "Pieces for Developers",
+                "url": "https://pieces.app/"
+              },
+              {
+                "id": "bm_7su8wp",
+                "title": "Scribble Diffusion",
+                "url": "https://scribblediffusion.com/"
+              },
+              {
+                "id": "bm_le88nu",
+                "title": "Vocal Remover and Isolation [AI]",
+                "url": "https://vocalremover.org/"
+              }
+            ]
+          },
+          {
+            "id": "folder_a1x108",
+            "title": "Curr",
+            "children": [
+              {
+                "id": "bm_zradow",
+                "title": "Function Calling · Hugging Face",
+                "url": "https://huggingface.co/docs/hugs/en/guides/function-calling"
+              },
+              {
+                "id": "bm_hhfyfg",
+                "title": "[2312.00886] Nash Learning from Human Feedback",
+                "url": "https://arxiv.org/abs/2312.00886"
+              },
+              {
+                "id": "bm_gvdytt",
+                "title": "Condorcet paradox - Wikipedia",
+                "url": "https://en.wikipedia.org/wiki/Condorcet_paradox"
+              },
+              {
+                "id": "bm_5bavo1",
+                "title": "Arrow&#39;s impossibility theorem - Wikipedia",
+                "url": "https://en.wikipedia.org/wiki/Arrow%27s_impossibility_theorem"
+              },
+              {
+                "id": "bm_kpoq55",
+                "title": "Discrete Mathematics Tutorial",
+                "url": "https://www.tutorialspoint.com/discrete_mathematics/index.htm"
+              },
+              {
+                "id": "bm_vz94vy",
+                "title": "How to Build an API with Mongoose and Express.js - DEV Community",
+                "url": "https://dev.to/franciscomendes10866/setup-mongodb-with-mongoose-and-express-4c58"
+              },
+              {
+                "id": "bm_nftwth",
+                "title": "Introduction - JavaScript | MDN",
+                "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Introduction"
+              },
+              {
+                "id": "bm_dw3h8h",
+                "title": "JavaScript basics - Learn web development | MDN",
+                "url": "https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/JavaScript_basics"
+              },
+              {
+                "id": "bm_rd09f2",
+                "title": "Web Storage API - Web APIs | MDN",
+                "url": "https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API"
+              }
+            ]
+          },
+          {
+            "id": "folder_bkg2x5",
+            "title": "Docs",
+            "children": [
+              {
+                "id": "bm_njqisy",
+                "title": "Computer - Advantages and Disadvantages",
+                "url": "https://www.tutorialspoint.com/computer_fundamentals/computer_advantages_and_disadvantages.htm"
+              },
+              {
+                "id": "bm_7h6omj",
+                "title": "Spring | Guides",
+                "url": "https://spring.io/guides"
+              },
+              {
+                "id": "bm_wqr340",
+                "title": "Tutorial v6.28.0 | React Router",
+                "url": "https://reactrouter.com/6.28.0/start/tutorial"
+              },
+              {
+                "id": "bm_m44v6m",
+                "title": "(104) Data Structures Illustrated - YouTube",
+                "url": "https://www.youtube.com/playlist?list=PLkZYeFmDuaN2-KUIv-mvbjfKszIGJ4FaY"
+              },
+              {
+                "id": "bm_opdkeb",
+                "title": "2. Getting Started — Selenium Python Bindings 2 documentation",
+                "url": "https://selenium-python.readthedocs.io/getting-started.html"
+              },
+              {
+                "id": "bm_m8l2z1",
+                "title": "An Intro to Threading in Python – Real Python",
+                "url": "https://realpython.com/intro-to-python-threading/"
+              },
+              {
+                "id": "bm_dri6k1",
+                "title": "Artificial Intelligence - Overview",
+                "url": "https://www.tutorialspoint.com/artificial_intelligence/index.htm"
+              },
+              {
+                "id": "bm_b7zg1x",
+                "title": "Basic usage | Documentation | Poetry - Python dependency management and packaging made easy",
+                "url": "https://python-poetry.org/docs/basic-usage/"
+              },
+              {
+                "id": "bm_hd0toh",
+                "title": "Comprehensive IP address data, IP geolocation API and database - IPinfo.io",
+                "url": "https://ipinfo.io/"
+              },
+              {
+                "id": "bm_uljtr4",
+                "title": "Concurrency in Python - GeeksforGeeks",
+                "url": "https://www.geeksforgeeks.org/python-program-with-concurrency/"
+              },
+              {
+                "id": "bm_v9nlwf",
+                "title": "Docker Documentation | Docker Documentation",
+                "url": "https://docs.docker.com/"
+              },
+              {
+                "id": "bm_q2sd79",
+                "title": "Git Cheatsheet - cs.fyi",
+                "url": "https://cs.fyi/guide/git-cheatsheet"
+              },
+              {
+                "id": "bm_ohirau",
+                "title": "Handling Hover, Focus, and Other States - Tailwind CSS",
+                "url": "https://tailwindcss.com/docs/hover-focus-and-other-states"
+              },
+              {
+                "id": "bm_la1p93",
+                "title": "Import File - From device – FreeConvert.com API v1.0.0",
+                "url": "https://www.freeconvert.com/api/v1/?python#import-file-from-device"
+              },
+              {
+                "id": "bm_al75p5",
+                "title": "JavaScript and HTML DOM Reference",
+                "url": "https://www.w3schools.com/jsref/default.asp"
+              },
+              {
+                "id": "bm_ojjj6s",
+                "title": "Learn Data Structures and Algorithms",
+                "url": "https://www.programiz.com/dsa"
+              },
+              {
+                "id": "bm_rrq7r8",
+                "title": "Learn X in Y Minutes: Scenic Programming Language Tours",
+                "url": "https://learnxinyminutes.com/"
+              },
+              {
+                "id": "bm_zlp2t5",
+                "title": "Queries and Mutations | GraphQL",
+                "url": "https://graphql.org/learn/queries/"
+              },
+              {
+                "id": "bm_o557yw",
+                "title": "Quickstart for GitHub Pages - GitHub Docs",
+                "url": "https://docs.github.com/en/pages/quickstart"
+              },
+              {
+                "id": "bm_o2e917",
+                "title": "Run your GitHub Actions workflow on a schedule | Jason Etcovitch",
+                "url": "https://jasonet.co/posts/scheduled-actions/#the-cron-syntax"
+              },
+              {
+                "id": "bm_893vqi",
+                "title": "W3Schools Pathfinder",
+                "url": "https://pathfinder.w3schools.com/learningpaths"
+              }
+            ]
+          },
+          {
+            "id": "folder_yqinsq",
+            "title": "E Commerce",
+            "children": [
+              {
+                "id": "bm_z92c2k",
+                "title": "Y dix | Formal Finesse",
+                "url": "https://www.ydixstore.com/"
+              },
+              {
+                "id": "bm_zp12r3",
+                "title": "Flipkart",
+                "url": "https://www.flipkart.com/"
+              },
+              {
+                "id": "bm_b8678v",
+                "title": "Online Shopping for Women, Men, Kids Fashion &amp; Lifestyle - Myntra",
+                "url": "https://www.myntra.com/"
+              },
+              {
+                "id": "bm_5uwste",
+                "title": "Ajio",
+                "url": "https://www.ajio.com/"
+              },
+              {
+                "id": "bm_vlb0xr",
+                "title": "Amazon",
+                "url": "https://www.amazon.in/?&tag=googhydrabk1-21&ref=pd_sl_5szpgfto9i_e&adgrpid=155259813593&hvpone=&hvptwo=&hvadid=674893540034&hvpos=&hvnetw=g&hvrand=10140795835105555809&hvqmt=e&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9183140&hvtargid=kwd-64107830&hydadcr=14452_2316413&gad_source=1"
+              }
+            ]
+          },
+          {
+            "id": "folder_a46p1w",
+            "title": "Earn",
+            "children": [
+              {
+                "id": "bm_r79fht",
+                "title": "Binance - Cryptocurrency Exchange for Bitcoin, Ethereum &amp; Altcoins",
+                "url": "https://www.binance.com/en"
+              },
+              {
+                "id": "bm_xlhc7r",
+                "title": "Internships | Summer Internship 2024",
+                "url": "https://internshala.com/"
+              },
+              {
+                "id": "bm_wcal8n",
+                "title": "Job Search India | Indeed",
+                "url": "https://in.indeed.com/"
+              },
+              {
+                "id": "bm_g9l6v6",
+                "title": "Part Time Work From Home Internships: Find 1180 Part Time Online Internships",
+                "url": "https://internshala.com/internships/work-from-home-internships/part-time-true/"
+              },
+              {
+                "id": "bm_dvuftv",
+                "title": "Remote Jobs in Programming, Support, Design and more",
+                "url": "https://remotive.com/"
+              },
+              {
+                "id": "bm_aaw2t7",
+                "title": "Upwork",
+                "url": "https://www.upwork.com/nx/find-work/"
+              },
+              {
+                "id": "bm_b3s41s",
+                "title": "We Work Remotely: Remote jobs in design, programming, marketing and more",
+                "url": "https://weworkremotely.com/?utm_network=g&device=c&utm_source=google&utm_medium=cpc&utm_campaign=12423397120&utm_term=&utm_content=124591068886&hsa_acc=1284754580&hsa_cam=12423397120&hsa_grp=124591068886&hsa_ad=538582891151&hsa_src=g&hsa_tgt=dsa-1589503502312&hsa_kw=&hsa_mt=&hsa_net=adwords&hsa_ver=3&gad_source=1&gad_campaignid=12423397120&gclid=CjwKCAjwn6LABhBSEiwAsNJrjoDdDHAC5b2JgnVJbBXCp7cdFiSFtpERPuMfUj0Qt_I_Jv1z14rFmBoCRL4QAvD_BwE"
+              }
+            ]
+          },
+          {
+            "id": "folder_mxfe2v",
+            "title": "Extras",
+            "children": [
+              {
+                "id": "bm_02cdt8",
+                "title": "Z-Library – the world’s largest e-book library. Your gateway to knowledge and culture.",
+                "url": "https://zlib.by/"
+              },
+              {
+                "id": "bm_kqbf5f",
+                "title": "Amino",
+                "url": "https://aminoapps.com/explore/en"
+              },
+              {
+                "id": "bm_gqvmtm",
+                "title": "Appetize.io - Run native mobile apps in your browser",
+                "url": "https://appetize.io/"
+              },
+              {
+                "id": "bm_j3p6dr",
+                "title": "Browse Thesaurus: Words Starting With A | Thesaurus.com",
+                "url": "https://www.thesaurus.com/list/a"
+              },
+              {
+                "id": "bm_n0c6xq",
+                "title": "Colorize Black and White Photos – Algorithmia",
+                "url": "https://demos.algorithmia.com/colorize-photos"
+              },
+              {
+                "id": "bm_vcgchm",
+                "title": "Decorative Fonts - 1001 Free Fonts",
+                "url": "https://www.1001freefonts.com/decorative-fonts-15.php"
+              },
+              {
+                "id": "bm_2f4r1q",
+                "title": "EverythingMoe - Index of best Anime/Manga sites",
+                "url": "https://everythingmoe.com/"
+              },
+              {
+                "id": "bm_4jl3wm",
+                "title": "Font Generator &amp; Font Changer - Cool Fancy Text Generator",
+                "url": "https://coolsymbol.com/cool-fancy-text-generator.html"
+              },
+              {
+                "id": "bm_zbqri2",
+                "title": "Font Squirrel | Free Fonts! Legit Free &amp; Quality",
+                "url": "https://www.fontsquirrel.com/"
+              },
+              {
+                "id": "bm_0kehli",
+                "title": "Free Fonts | 90,000+ Font Downloads | FontSpace",
+                "url": "https://www.fontspace.com/"
+              },
+              {
+                "id": "bm_2t25i9",
+                "title": "Geek Prank 😈 Windows XP Simulator and Other Online Pranks",
+                "url": "https://geekprank.com/"
+              },
+              {
+                "id": "bm_n93zrn",
+                "title": "Neave Interactive",
+                "url": "https://neave.com/"
+              },
+              {
+                "id": "bm_gmrcko",
+                "title": "Power Thesaurus",
+                "url": "https://www.powerthesaurus.org/"
+              },
+              {
+                "id": "bm_iq3tfd",
+                "title": "Twitter Video Downloader - Download Twitter Videos to MP4 &amp; MP3",
+                "url": "https://www.savetweetvid.com/"
+              },
+              {
+                "id": "bm_2se1pv",
+                "title": "Versus: Find alternatives",
+                "url": "https://versusutil.com/"
+              }
+            ]
+          },
+          {
+            "id": "folder_dt654b",
+            "title": "Google",
+            "children": [
+              {
+                "id": "bm_ndeyw1",
+                "title": "Contacts",
+                "url": "https://contacts.google.com/"
+              },
+              {
+                "id": "bm_c628fx",
+                "title": "Drive",
+                "url": "https://drive.google.com/drive/?utm_source=en&pli=1"
+              },
+              {
+                "id": "bm_927xzf",
+                "title": "Earth",
+                "url": "https://earth.google.com/web/"
+              },
+              {
+                "id": "bm_nse9yv",
+                "title": "Gmail",
+                "url": "https://accounts.google.com/b/0/AddMailService"
+              },
+              {
+                "id": "bm_nd670z",
+                "title": "Google Meet",
+                "url": "https://meet.google.com/"
+              },
+              {
+                "id": "bm_u070is",
+                "title": "Maps",
+                "url": "https://maps.google.com/"
+              },
+              {
+                "id": "bm_p9vvyf",
+                "title": "News",
+                "url": "https://news.google.com/"
+              },
+              {
+                "id": "bm_zwc35w",
+                "title": "Photos",
+                "url": "https://photos.google.com/"
+              },
+              {
+                "id": "bm_mk84fr",
+                "title": "Translate",
+                "url": "https://translate.google.com/"
+              },
+              {
+                "id": "bm_v9j8br",
+                "title": "YouTube",
+                "url": "https://www.youtube.com/"
+              }
+            ]
+          },
+          {
+            "id": "folder_ykdd1i",
+            "title": "Intresting",
+            "children": [
+              {
+                "id": "bm_p02yzv",
+                "title": "CSE Concept Laboratory — Interactive Case Studies",
+                "url": "https://vicharanashala.github.io/cse-concept-laboratory/"
+              },
+              {
+                "id": "bm_a67zq5",
+                "title": "YappyDraw — Free Online Whiteboard for Sketching, Diagrams &amp; Mindmaps",
+                "url": "https://yappydraw.com/"
+              },
+              {
+                "id": "bm_4sjfs0",
+                "title": "Intern project briefs - Annam",
+                "url": "https://docs.google.com/document/u/0/d/1_qHXZkgzfmqkYckfbmlFa1VeejTw_XtCSka_3SNjxVU/mobilebasic"
+              },
+              {
+                "id": "bm_dn0zr9",
+                "title": "Jatin-nicon/CodersHigh at Raunak",
+                "url": "https://github.com/Jatin-nicon/CodersHigh/tree/Raunak"
+              },
+              {
+                "id": "bm_ezuhqo",
+                "title": "CS50&#39;s Introduction to Programming with Python",
+                "url": "https://cs50.harvard.edu/python/"
+              },
+              {
+                "id": "bm_gfe4jx",
+                "title": "Yaksha FAQ Portal",
+                "url": "https://samagama.in/csfaq/tee/share/7c2b849d-b3a0-4ee8-84f7-fbde25926f39?batch=6a2da1bd887f1e7ceb58dcbb"
+              },
+              {
+                "id": "bm_y4d7x9",
+                "title": "Programming | Codershigh",
+                "url": "https://sudarshansudarshan.github.io/codershigh/Programming/"
+              },
+              {
+                "id": "bm_f5steb",
+                "title": "Bruno          🚗🌳",
+                "url": "https://bruno-simon.com/"
+              },
+              {
+                "id": "bm_ella2j",
+                "title": "Book Reviews – The Writing Center",
+                "url": "https://writingcenter.unc.edu/tips-and-tools/book-reviews/"
+              },
+              {
+                "id": "bm_zuxez5",
+                "title": "Krishna&#39;s Neutrality and Righteousness",
+                "url": "https://chatgpt.com/share/6a6cd15b-b5e0-83ee-b99d-44db0da87d02"
+              },
+              {
+                "id": "bm_r2oqeb",
+                "title": "Concepts for Videos - Google Docs",
+                "url": "https://docs.google.com/document/d/13ntSJMBOj_eqm5qp6ByvngJynEHtlsE6lFZqE42fxTU/edit?tab=t.f2ac65eytpab#heading=h.w2eqwn95mpej"
+              },
+              {
+                "id": "bm_mv6bkx",
+                "title": "Oceanverse_old | AI Vicharana Shala",
+                "url": "https://sudarshansudarshan.github.io/aicamp/oceanverse_old/"
+              },
+              {
+                "id": "bm_5riel0",
+                "title": "Matrix Mystics | Codershigh",
+                "url": "https://sudarshansudarshan.github.io/codershigh/matrixmystics/"
+              },
+              {
+                "id": "bm_c0m4c7",
+                "title": "The Code Book - HOW TO MAKE IT, BREAK IT, HACK IT, CRACK IT",
+                "url": "https://readandlaugh.wordpress.com/wp-content/uploads/2014/12/thecodebook.pdf"
+              },
+              {
+                "id": "bm_7nlwiv",
+                "title": "sfc.png - Google Drive",
+                "url": "https://drive.google.com/file/d/1YiWz-QLg95ru2LljxvL8vHNLOErDUurr/view?pli=1"
+              },
+              {
+                "id": "bm_uiyk4j",
+                "title": "Oceanverse | Codershigh",
+                "url": "https://sudarshansudarshan.github.io/codershigh/oceanverse/"
+              },
+              {
+                "id": "bm_xmphxd",
+                "title": "Season 01 | Codershigh",
+                "url": "https://sudarshansudarshan.github.io/codershigh/season-01/"
+              },
+              {
+                "id": "bm_n9y1ri",
+                "title": "Spandan - Poll Question Generator",
+                "url": "https://spandan.fun/spandan/student"
+              },
+              {
+                "id": "bm_kkz7a0",
+                "title": "ViBe",
+                "url": "https://vibe.vicharanashala.ai/student"
+              },
+              {
+                "id": "bm_0nfxwn",
+                "title": "All - Activity - raunak18 - Vicharana Shala",
+                "url": "https://vicharanashala.discourse.group/u/raunak18/activity"
+              },
+              {
+                "id": "bm_w0qivo",
+                "title": "Spandan - Poll Question Generator",
+                "url": "https://samagama.in/spandan/student"
+              },
+              {
+                "id": "bm_v5iie7",
+                "title": "Chat Engine",
+                "url": "https://samagama.in/"
+              }
+            ]
+          },
+          {
+            "id": "folder_4k97ir",
+            "title": "News",
+            "children": [
+              {
+                "id": "bm_gz8lyw",
+                "title": "Latest News: Business, Technology &amp; Leadership - Fast Company",
+                "url": "https://www.fastcompany.com/news"
+              },
+              {
+                "id": "bm_9ndpsr",
+                "title": "DevURLs – A neat developer news aggregator",
+                "url": "https://devurls.com/"
+              },
+              {
+                "id": "bm_to18k9",
+                "title": "Technology Radar | Guide to technology landscape | Thoughtworks",
+                "url": "https://www.thoughtworks.com/radar"
+              },
+              {
+                "id": "bm_edn3u7",
+                "title": "InfoQ: Software Development News, Trends &amp; Best Practices - InfoQ",
+                "url": "https://www.infoq.com/"
+              },
+              {
+                "id": "bm_jr2nua",
+                "title": "Hacker News",
+                "url": "https://news.ycombinator.com/"
+              }
+            ]
+          },
+          {
+            "id": "folder_h64eft",
+            "title": "Online games",
+            "children": [
+              {
+                "id": "bm_hl0hlp",
+                "title": "Krunker",
+                "url": "https://krunker.io/?game=MBI:6zksi"
+              },
+              {
+                "id": "bm_4ftpu9",
+                "title": "Nitro Type",
+                "url": "https://www.nitrotype.com/"
+              },
+              {
+                "id": "bm_1s3u6x",
+                "title": "QWOP",
+                "url": "https://www.foddy.net/Athletics.html"
+              },
+              {
+                "id": "bm_iq8ph4",
+                "title": "skribbl - Free Multiplayer Drawing &amp; Guessing Game",
+                "url": "https://skribbl.io/"
+              },
+              {
+                "id": "bm_u29eue",
+                "title": "s l o w  r o a d s",
+                "url": "https://slowroads.io/"
+              },
+              {
+                "id": "bm_wdh8r8",
+                "title": "ZType – Typing Game - Type to Shoot",
+                "url": "https://zty.pe/"
+              }
+            ]
+          },
+          {
+            "id": "folder_3bgig0",
+            "title": "Other",
+            "children": [
+              {
+                "id": "bm_zcnrhp",
+                "title": "T4TSA | Watch, Relax, Repeat",
+                "url": "https://t4tsa.cc/"
+              },
+              {
+                "id": "bm_yzmvgk",
+                "title": "FitGirl Repacks",
+                "url": "https://fitgirl-repacks.site/"
+              },
+              {
+                "id": "bm_pfh74f",
+                "title": "Apollo Justice Ace Attorney Trilogy Build 13820637 free download torrent",
+                "url": "https://skidrowcodex.co/12058-apollo-justice-ace-attorney-trilogy.html"
+              },
+              {
+                "id": "bm_337e0s",
+                "title": "Download torrent games on the PC RePack by R.G. Mechanics",
+                "url": "https://repack-mechanics.com/"
+              },
+              {
+                "id": "bm_o2b5eh",
+                "title": "Epic Games Store | Official Site",
+                "url": "https://www.epicgames.com/store/en-US/browse?sortBy=releaseDate&sortDir=DESC&priceTier=tierFree&count=40&start=0"
+              },
+              {
+                "id": "bm_l6xmm4",
+                "title": "Mr DJ Repacks – Mr DJ repacks",
+                "url": "https://mrdj777.wordpress.com/mr-dj-repacks/page/2/"
+              },
+              {
+                "id": "bm_h78et2",
+                "title": "Search for &quot;god of war&quot; term - Romspedia",
+                "url": "https://www.romspedia.com/search?search_term_string=god+of+war"
+              },
+              {
+                "id": "bm_w9m86c",
+                "title": "Skidrow Codex Games – Download Torrent PC Games",
+                "url": "https://skidrowcodex.co/"
+              }
+            ]
+          },
+          {
+            "id": "folder_8i6sw4",
+            "title": "Practice",
+            "children": [
+              {
+                "id": "bm_j2pk99",
+                "title": " HackerRank",
+                "url": "https://www.hackerrank.com/dashboard"
+              },
+              {
+                "id": "bm_9pd2vf",
+                "title": "Browsers | Playwright Python",
+                "url": "https://playwright.dev/python/docs/browsers#google-chrome--microsoft-edge"
+              },
+              {
+                "id": "bm_rr1uqx",
+                "title": "C programming Exercises, Practice, Solution - w3resource",
+                "url": "https://www.w3resource.com/c-programming-exercises/"
+              },
+              {
+                "id": "bm_n9c16m",
+                "title": "Frame | Playwright Python",
+                "url": "https://playwright.dev/python/docs/api/class-frame"
+              },
+              {
+                "id": "bm_swp15d",
+                "title": "HackerEarth: Remotely hire the best tech talent",
+                "url": "https://www.hackerearth.com/"
+              },
+              {
+                "id": "bm_rhdfq8",
+                "title": "LeetCode - Problems",
+                "url": "https://leetcode.com/problemset/"
+              },
+              {
+                "id": "bm_655avw",
+                "title": "Sphere Online Judge (SPOJ)",
+                "url": "https://www.spoj.com/"
+              }
+            ]
+          },
+          {
+            "id": "folder_hd1zz5",
+            "title": "Social media",
+            "children": [
+              {
+                "id": "bm_gjrq30",
+                "title": "DEV Community",
+                "url": "https://dev.to/"
+              },
+              {
+                "id": "bm_jwdfug",
+                "title": "Discord",
+                "url": "https://discord.com/channels/@me"
+              },
+              {
+                "id": "bm_jcxo7v",
+                "title": "Feed | LinkedIn",
+                "url": "https://www.linkedin.com/feed/"
+              },
+              {
+                "id": "bm_0xt3f4",
+                "title": "Reddit: Dive into anything",
+                "url": "https://www.reddit.com/"
+              },
+              {
+                "id": "bm_cx3cel",
+                "title": "Twitter",
+                "url": "https://twitter.com/home"
+              }
+            ]
+          },
+          {
+            "id": "folder_ggyfkm",
+            "title": "Tools",
+            "children": [
+              {
+                "id": "bm_rx3xdm",
+                "title": "Try NVIDIA NIM APIs",
+                "url": "https://build.nvidia.com/"
+              },
+              {
+                "id": "bm_0t1z0g",
+                "title": "Everyone at Captain D. Ezio",
+                "url": "https://whimsical.com/captain-d-ezio/everyone-at-captain-d-ezio-VbGvCGBmj8PfSuDcErN83Y"
+              },
+              {
+                "id": "bm_e0una4",
+                "title": "Temporary Disposable Gmail | Temp Mail | Email Generator",
+                "url": "https://www.emailnator.com/"
+              },
+              {
+                "id": "bm_vo4cga",
+                "title": "ui.dev | JavaScript, but fun.",
+                "url": "https://ui.dev/"
+              },
+              {
+                "id": "bm_65cxhy",
+                "title": "Dev.UI",
+                "url": "https://www.devui.in/"
+              },
+              {
+                "id": "bm_rdl5gu",
+                "title": "AI Photo Editing: Instantly Remove Backgrounds &amp; More | insMind",
+                "url": "https://www.insmind.com/"
+              },
+              {
+                "id": "bm_3m75wj",
+                "title": "Bootstrap Icons · Official open source SVG icon library for Bootstrap",
+                "url": "https://icons.getbootstrap.com/"
+              },
+              {
+                "id": "bm_6uzn7s",
+                "title": "CloudConvert",
+                "url": "https://cloudconvert.com/"
+              },
+              {
+                "id": "bm_c111gu",
+                "title": "Excalidraw",
+                "url": "https://excalidraw.com/"
+              },
+              {
+                "id": "bm_vjj2jf",
+                "title": "favicon.ico Generator",
+                "url": "https://www.favicon.cc/"
+              },
+              {
+                "id": "bm_v92ufz",
+                "title": "Font Awesome",
+                "url": "https://fontawesome.com/icons"
+              },
+              {
+                "id": "bm_ltc2h4",
+                "title": "Grammarly",
+                "url": "https://app.grammarly.com/docs/new"
+              },
+              {
+                "id": "bm_ajyr0m",
+                "title": "Icons",
+                "url": "https://icons8.com/icons"
+              },
+              {
+                "id": "bm_ibnki0",
+                "title": "Make a README",
+                "url": "https://www.makeareadme.com/"
+              },
+              {
+                "id": "bm_6gr5lo",
+                "title": "Pinterest",
+                "url": "https://in.pinterest.com/"
+              },
+              {
+                "id": "bm_84tjji",
+                "title": "Pixlr Suite",
+                "url": "https://pixlr.com/suite/"
+              },
+              {
+                "id": "bm_zfgoyv",
+                "title": "readme.so",
+                "url": "https://readme.so/editor"
+              },
+              {
+                "id": "bm_y586mu",
+                "title": "Shields.io: Quality metadata badges for open source projects",
+                "url": "https://shields.io/"
+              },
+              {
+                "id": "bm_ct0fc6",
+                "title": "Simple Icons",
+                "url": "https://simpleicons.org/"
+              },
+              {
+                "id": "bm_9j00yg",
+                "title": "StackEdit",
+                "url": "https://stackedit.io/app#"
+              },
+              {
+                "id": "bm_kck943",
+                "title": "𝗧𝗲𝘅𝘁 font copy paste",
+                "url": "https://fsymbols.com/generators/blocky/"
+              },
+              {
+                "id": "bm_nbz9pq",
+                "title": "Vector Icons and Stickers - PNG, SVG, EPS, PSD and CSS",
+                "url": "https://www.flaticon.com/"
+              },
+              {
+                "id": "bm_dzs3np",
+                "title": "Video Compressor | Reduce Video File Size Online",
+                "url": "https://www.freeconvert.com/video-compressor"
+              },
+              {
+                "id": "bm_p66e2r",
+                "title": "mockAPI",
+                "url": "https://mockapi.io/"
+              },
+              {
+                "id": "bm_qc90yu",
+                "title": "Transfer Playlists Between Music Services | Tune My Music",
+                "url": "https://www.tunemymusic.com/transfer"
+              },
+              {
+                "id": "bm_36sr11",
+                "title": "C Examples",
+                "url": "https://www.w3schools.com/c/c_examples.php"
+              },
+              {
+                "id": "bm_0jfyk1",
+                "title": "PWM Dashboard",
+                "url": "https://passwords.avira.com/mydata/passwords"
+              },
+              {
+                "id": "bm_i8kog6",
+                "title": "Discover apps - Canva",
+                "url": "https://www.canva.com/your-apps"
+              },
+              {
+                "id": "bm_9tb3lh",
+                "title": "Instant Background Remover - Remove Bg for Free Online | Photoroom",
+                "url": "https://www.photoroom.com/tools/background-remover"
+              },
+              {
+                "id": "bm_8reo19",
+                "title": "Remove Background from Image for Free – remove.bg",
+                "url": "https://www.remove.bg/"
+              },
+              {
+                "id": "bm_bvsxyx",
+                "title": "Free web proxy - browse fast &amp; anonymously",
+                "url": "https://proxyium.com/"
+              },
+              {
+                "id": "bm_0ynojm",
+                "title": "AI-Powered Free Online PDF Editor, Converter &amp; Reader - LightPDF",
+                "url": "https://lightpdf.com/"
+              }
+            ]
+          },
+          {
+            "id": "folder_7kw0kk",
+            "title": "Useful",
+            "children": [
+              {
+                "id": "bm_yjbkcp",
+                "title": "Medium",
+                "url": "https://medium.com/"
+              },
+              {
+                "id": "bm_l9wu81",
+                "title": "Cyber Mastery: Community Inspired. Enterprise Trusted. | Hack The Box",
+                "url": "https://www.hackthebox.com/"
+              },
+              {
+                "id": "bm_h7imzh",
+                "title": "Free Online Resume Builder | CV Maker (Free) | FlowCV",
+                "url": "https://flowcv.com/"
+              },
+              {
+                "id": "bm_87hwwl",
+                "title": "Linear Algebra | Khan Academy",
+                "url": "https://www.khanacademy.org/math/linear-algebra"
+              },
+              {
+                "id": "bm_dbca39",
+                "title": "NoSignups - Open Source Tools. Zero Bullsh*t.",
+                "url": "https://nosignups.net/"
+              },
+              {
+                "id": "bm_ff4089",
+                "title": "Freebuff — the free coding agent (free Claude Code, Codex, Cursor &amp; Lovable alternative)",
+                "url": "https://freebuff.com/"
+              },
+              {
+                "id": "bm_r4g7w9",
+                "title": "Beautiful Free Images &amp; Pictures | Unsplash",
+                "url": "https://unsplash.com/"
+              },
+              {
+                "id": "bm_stihu8",
+                "title": "imgix",
+                "url": "https://dashboard.imgix.com/assets/6a7277136a0777cb3f0407d6"
+              },
+              {
+                "id": "bm_ue513m",
+                "title": "Manim Community",
+                "url": "https://www.manim.community/"
+              },
+              {
+                "id": "bm_7mpue1",
+                "title": "The Agent Skills Directory",
+                "url": "https://www.skills.sh/"
+              },
+              {
+                "id": "bm_s3no78",
+                "title": "OSINT4ALL - Start.me",
+                "url": "https://start.me/p/L1rEYQ/osint4all"
+              },
+              {
+                "id": "bm_ih9l4m",
+                "title": "Lucide",
+                "url": "https://lucide.dev/"
+              },
+              {
+                "id": "bm_t65sst",
+                "title": "Home | Apprenticeship Training Portal",
+                "url": "https://www.apprenticeshipindia.gov.in/"
+              },
+              {
+                "id": "bm_pnz4sz",
+                "title": "tRPC - Move Fast and Break Nothing. End-to-end typesafe APIs made easy. | tRPC",
+                "url": "https://trpc.io/"
+              },
+              {
+                "id": "bm_uiqgkt",
+                "title": "The Foundation for your Design System - shadcn/ui",
+                "url": "https://ui.shadcn.com/"
+              },
+              {
+                "id": "bm_k58ra8",
+                "title": "Tailwind CSS Spinner / Loader - Free Examples &amp; Tutorial",
+                "url": "https://tw-elements.com/docs/standard/components/spinners/#"
+              },
+              {
+                "id": "bm_irfzha",
+                "title": "Flowbite - Build websites even faster with components on top of Tailwind CSS",
+                "url": "https://flowbite.com/"
+              },
+              {
+                "id": "bm_ukk4he",
+                "title": "Uiverse | The Largest Library of Open-Source UI elements",
+                "url": "https://uiverse.io/"
+              },
+              {
+                "id": "bm_c2mjig",
+                "title": "Free Illustrations to Download | Freepik",
+                "url": "https://www.freepik.com/illustrations"
+              },
+              {
+                "id": "bm_ui1nws",
+                "title": "Download Free Vectors, Images, Photos &amp; Videos | Vecteezy",
+                "url": "https://www.vecteezy.com/"
+              },
+              {
+                "id": "bm_5rc1zv",
+                "title": "All Online Tools in One Box | 10015 Tools",
+                "url": "https://10015.io/"
+              },
+              {
+                "id": "bm_xk4ikp",
+                "title": "API Hub - Free Public &amp; Open Rest APIs | Rapid",
+                "url": "https://rapidapi.com/hub"
+              },
+              {
+                "id": "bm_zcyhke",
+                "title": "Chai Code",
+                "url": "https://chaicode.com/"
+              },
+              {
+                "id": "bm_xba9mg",
+                "title": "Conda Documentation — conda-docs documentation",
+                "url": "https://docs.conda.io/en/latest/"
+              },
+              {
+                "id": "bm_tci6a1",
+                "title": "CSS-Tricks - Tips, Tricks, and Techniques on using Cascading Style Sheets.",
+                "url": "https://css-tricks.com/"
+              },
+              {
+                "id": "bm_q2cmbf",
+                "title": "Developer Roadmaps - roadmap.sh",
+                "url": "https://roadmap.sh/"
+              },
+              {
+                "id": "bm_b68wt1",
+                "title": "Explorer | Sandbox | Studio",
+                "url": "https://studio.apollographql.com/sandbox/explorer"
+              },
+              {
+                "id": "bm_46a495",
+                "title": "Free Stock Photos, Royalty Free Stock Images &amp; Copyright Free Pictures · Pexels",
+                "url": "https://www.pexels.com/"
+              },
+              {
+                "id": "bm_nlszkq",
+                "title": "FreeApi.app",
+                "url": "https://freeapi.app/"
+              },
+              {
+                "id": "bm_2v4ohf",
+                "title": "Freepik | Create great designs, faster",
+                "url": "https://www.freepik.com/"
+              },
+              {
+                "id": "bm_zdwir9",
+                "title": "GitHub",
+                "url": "https://github.com/"
+              },
+              {
+                "id": "bm_a8sq7o",
+                "title": "Home - Canva",
+                "url": "https://www.canva.com/"
+              },
+              {
+                "id": "bm_kgpni1",
+                "title": "Home - Replit",
+                "url": "https://replit.com/~"
+              },
+              {
+                "id": "bm_k8gcgw",
+                "title": "https://anilist.co/graphiql",
+                "url": "https://anilist.co/graphiql?query=%23%20Welcome%20to%20GraphiQL%0A%23%0A%23%20GraphiQL%20is%20an%20in-browser%20tool%20for%20writing%2C%20validating%2C%20and%0A%23%20testing%20GraphQL%20queries.%0A%23%0A%23%20Type%20queries%20into%20this%20side%20of%20the%20screen%2C%20and%20you%20will%20see%20intelligent%0A%23%20typeaheads%20aware%20of%20the%20current%20GraphQL%20type%20schema%20and%20live%20syntax%20and%0A%23%20validation%20errors%20highlighted%20within%20the%20text.%0A%23%0A%23%20GraphQL%20queries%20typically%20start%20with%20a%20%22%7B%22%20character.%20Lines%20that%20starts%0A%23%20with%20a%20%23%20are%20ignored.%0A%23%0A%23%20An%20example%20GraphQL%20query%20might%20look%20like%3A%0A%23%0A%23%20%20%20%20%20%7B%0A%23%20%20%20%20%20%20%20field(arg%3A%20%22value%22)%20%7B%0A%23%20%20%20%20%20%20%20%20%20subField%0A%23%20%20%20%20%20%20%20%7D%0A%23%20%20%20%20%20%7D%0A%23%0A%23%20Keyboard%20shortcuts%3A%0A%23%0A%23%20%20%20%20%20%20%20Run%20Query%3A%20%20Ctrl-Enter%20(or%20press%20the%20play%20button%20above)%0A%23%0A%23%20%20%20Auto%20Complete%3A%20%20Ctrl-Space%20(or%20just%20start%20typing)%0A%23"
+              },
+              {
+                "id": "bm_fbudja",
+                "title": "Image Splitter &amp; Grid Maker for Instagram - 100% Online",
+                "url": "https://mysocialboutique.co/instagram-grid-maker/"
+              },
+              {
+                "id": "bm_dzklzj",
+                "title": "NeetCode.io",
+                "url": "https://neetcode.io/"
+              },
+              {
+                "id": "bm_gep34u",
+                "title": "Paint with Text | Calligram Creator",
+                "url": "https://paint.toys/calligram/"
+              },
+              {
+                "id": "bm_s5rlfc",
+                "title": "Sanskrit Password Generator",
+                "url": "https://www.sanskritpassword.com/"
+              },
+              {
+                "id": "bm_ppr7m0",
+                "title": "Star Charts",
+                "url": "https://starchart.cc/"
+              },
+              {
+                "id": "bm_sxhai1",
+                "title": "The Sari Series - Border&amp;Fall",
+                "url": "https://thesariseries.com/"
+              },
+              {
+                "id": "bm_nzdueb",
+                "title": "Time complexity",
+                "url": "https://towardsdatascience.com/understanding-time-complexity-with-python-examples-2bda6e8158a7"
+              },
+              {
+                "id": "bm_ts4jwd",
+                "title": "Vercel",
+                "url": "https://vercel.com/"
+              },
+              {
+                "id": "bm_2z0j40",
+                "title": "visualising data structures and algorithms through animation - VisuAlgo",
+                "url": "https://visualgo.net/en"
+              },
+              {
+                "id": "bm_0omocq",
+                "title": "Vite + React + TS",
+                "url": "https://webbapp-new.myanimetv.tk/en"
+              },
+              {
+                "id": "bm_rs3vng",
+                "title": "VS Codes",
+                "url": "https://vscode.dev/"
+              }
+            ]
+          },
+          {
+            "id": "folder_4gufaa",
+            "title": "way to Learn",
+            "children": [
+              {
+                "id": "bm_l6vf68",
+                "title": "CodeChef - Learn and Practice Coding with Problems",
+                "url": "https://www.codechef.com/"
+              },
+              {
+                "id": "bm_g94pwc",
+                "title": "CSSBattle",
+                "url": "https://cssbattle.dev/"
+              },
+              {
+                "id": "bm_5apiwy",
+                "title": "Tutorials on Technical and Non Technical Subjects",
+                "url": "https://www.tutorialspoint.com/"
+              },
+              {
+                "id": "bm_o7kw7j",
+                "title": "CheckiO",
+                "url": "https://checkio.org/"
+              },
+              {
+                "id": "bm_ifvet5",
+                "title": "CodeCombat",
+                "url": "https://codecombat.com/"
+              },
+              {
+                "id": "bm_raasu9",
+                "title": "Codewars - Achieve mastery through coding practice and developer mentorship",
+                "url": "https://www.codewars.com/"
+              },
+              {
+                "id": "bm_qszijq",
+                "title": "Coursera | Online Courses From Top Universities. Join for Free",
+                "url": "https://www.coursera.org/"
+              },
+              {
+                "id": "bm_n46nli",
+                "title": "Elevator Saga",
+                "url": "https://play.elevatorsaga.com/"
+              },
+              {
+                "id": "bm_e3c8hp",
+                "title": "QuickRef.ME - Quick Reference Cheat Sheet",
+                "url": "https://quickref.me/"
+              },
+              {
+                "id": "bm_hthc7y",
+                "title": "Udemy",
+                "url": "https://www.udemy.com/"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "2",
+        "title": "Other bookmarks",
+        "children": []
+      }
+    ]
+  }
+]
