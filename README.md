@@ -109,6 +109,7 @@ Chitragupta/
 ├── README.md                      # Complete system documentation
 ├── product.md                     # Product specifications & requirements
 ├── AI_Chrome_Bookmark_Organizer_Process_Flow.md  # Architectural flow & diagrams
+├── LICENSE                        # MIT License
 ├── start_backend.bat              # Windows batch launcher
 ├── start_backend.ps1              # Windows PowerShell launcher
 ├── extension/
@@ -153,3 +154,9 @@ node tests/test_organizer.js
 # Run Backend API Self-Tests (Python)
 python backend/run_server.py --test
 ```
+
+---
+
+## License
+
+This project is licensed under the terms of the [MIT License](file:///c:/Dev/Chitragupta/LICENSE).
