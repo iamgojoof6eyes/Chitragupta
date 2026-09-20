@@ -130,9 +130,66 @@
             <span>Automatically delete empty folders left behind after bookmarks are moved</span>
           </label>
         </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="always-sort-alphabetical">
+            <span>Always organize bookmarks in alphabetical order (A-Z)</span>
+          </label>
+          <span class="hint-text">Automatically sort folders and bookmarks alphabetically within each category during reorganization.</span>
+        </div>
       </section>
 
-      <!-- Section 4: Backup & Data -->
+      <!-- Section 4: Bookmark Search & Discovery -->
+      <section class="card" id="search-section">
+        <div class="card-header">
+          <h2>Search Bookmarks</h2>
+          <span class="badge" id="search-count-badge">Loading bookmarks...</span>
+        </div>
+        <p class="card-desc">
+          Quickly search across your entire bookmark collection by page title, URL, or tags and folder categories.
+        </p>
+
+        <div class="search-filter-controls">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="bookmark-search-input" placeholder="Search by title, URL, or tag/category...">
+            <button id="btn-clear-search" class="btn-icon-clear hidden" title="Clear search">✕</button>
+          </div>
+
+          <div class="search-criteria-chips">
+            <span class="criteria-label">Search in:</span>
+            <label class="chip-filter">
+              <input type="radio" name="search-field" value="all" checked>
+              <span>All Fields</span>
+            </label>
+            <label class="chip-filter">
+              <input type="radio" name="search-field" value="title">
+              <span>Page Title</span>
+            </label>
+            <label class="chip-filter">
+              <input type="radio" name="search-field" value="url">
+              <span>URL</span>
+            </label>
+            <label class="chip-filter">
+              <input type="radio" name="search-field" value="tags">
+              <span>Tags / Category</span>
+            </label>
+          </div>
+        </div>
+
+        <div id="search-results-summary" class="search-results-summary hidden">
+          <span id="search-results-count-text">0 matches</span>
+        </div>
+
+        <div id="search-results-container" class="search-results-container">
+          <div class="search-placeholder">
+            Type in the box above to instantly search through your bookmarks.
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Backup & Data -->
       <section class="card">
         <div class="card-header">
           <h2>Backup & Recovery</h2>

@@ -76,21 +76,43 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="select-folder" class="field-label">Save To Folder</label>
+        <div class="form-group" id="group-save-folder">
+          <div class="field-label-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+            <label for="select-folder" class="field-label" style="margin-bottom: 0;">Save To Folder</label>
+            <span id="ai-folder-badge" class="badge-cat" style="display: none; font-size: 10.5px; padding: 2px 7px; background: rgba(99, 102, 241, 0.18); color: #a78bfa; border: 1px solid rgba(167, 139, 250, 0.35);">✨ AI Suggested</span>
+          </div>
           <div class="folder-select-row">
             <select id="select-folder" class="select-field">
               <option value="1" selected>📌 Bookmarks Bar (Root)</option>
             </select>
           </div>
+          <div id="ai-folder-hint" style="display: none; font-size: 11px; color: var(--text-muted); margin-top: 4px;"></div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" id="group-save-tags">
           <label for="input-tags" class="field-label">Suggested Tags</label>
           <div id="tag-pills" class="tag-container">
             <!-- Dynamically populated tags -->
           </div>
           <input type="text" id="input-tags" class="input-field-tags" placeholder="Add custom tags separated by commas...">
+        </div>
+
+        <!-- Already Exists Alert Banner (Replaces save button when page is already bookmarked) -->
+        <div id="save-already-exists-banner" class="already-exists-banner hidden">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 7px; color: #facc15; font-weight: 600; font-size: 13px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+              <span>Already Exists</span>
+            </div>
+            <span id="save-already-exists-badge" class="badge-cat" style="background: rgba(234, 179, 8, 0.18); color: #fde047; border-color: rgba(234, 179, 8, 0.4); font-size: 10.5px;">Saved</span>
+          </div>
+          <div id="save-already-exists-detail" style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">
+            This website is already saved in your bookmarks.
+          </div>
+          <button id="btn-view-existing-bookmark" type="button" class="btn-secondary btn-sm" style="align-self: flex-start; margin-top: 3px; border-color: rgba(234, 179, 8, 0.4); color: #facc15;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            Show in Explorer
+          </button>
         </div>
 
         <button id="btn-save-bookmark" class="btn-primary glow-btn">
@@ -153,10 +175,22 @@
           </select>
         </div>
 
+        <div class="form-group">
+          <label for="input-excluded-folders" class="field-label">
+            <span>Protected / Excluded Folders</span>
+            <span class="field-hint-inline">(never touched or moved)</span>
+          </label>
+          <input type="text" id="input-excluded-folders" class="select-field" placeholder="e.g. CDH, Work, Personal">
+        </div>
+
         <div class="options-row">
           <label class="toggle-control">
             <input type="checkbox" id="check-clean-empty" checked>
             <span class="toggle-text">Clean empty folders after move</span>
+          </label>
+          <label class="toggle-control">
+            <input type="checkbox" id="check-sort-alphabetical">
+            <span class="toggle-text">Sort A-Z</span>
           </label>
         </div>
 
@@ -167,13 +201,17 @@
 
         <!-- Snapshot JSON Tools -->
         <div class="json-backup-bar">
+          <button id="btn-sort-now" class="btn-secondary btn-sm" style="color: #a78bfa; border-color: rgba(167,139,250,0.4);" title="Reorder all bookmarks in current scope alphabetically (A-Z)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h7M3 12h5M3 18h3M15 6l6 6-6 6M21 12H11"></path></svg>
+            Reorder A-Z
+          </button>
           <button id="btn-quick-export-json" class="btn-secondary btn-sm" title="Save full bookmark tree JSON to your device">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             Export JSON
           </button>
-          <button id="btn-restore-pristine" class="btn-secondary btn-sm" style="color: #38bdf8; border-color: rgba(56,189,248,0.4);" title="Restore all original 16 folders and 248 bookmarks from clean backup">
+          <button id="btn-restore-previous" class="btn-secondary btn-sm" style="color: #38bdf8; border-color: rgba(56,189,248,0.4);" title="Restore bookmarks to the exact structure before the last reorganization">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
-            Restore 16 Folders
+            Restore Previous
           </button>
           <label class="btn-secondary btn-sm file-upload-label" title="Restore bookmarks from a previously saved JSON file">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
@@ -226,6 +264,7 @@
           <span id="pill-new-folders" class="pill pill-add">+ 0 Folders</span>
           <span id="pill-moves" class="pill pill-move">→ 0 Moves</span>
           <span id="pill-deletes" class="pill pill-del">- 0 Empty</span>
+          <span id="pill-protected" class="pill pill-protected hidden">🔒 0 Protected</span>
         </div>
 
         <div id="preview-tree-list" class="preview-tree-list">
@@ -249,6 +288,9 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <input type="text" id="search-bookmarks" placeholder="Search title or URL...">
         </div>
+        <button id="btn-sort-tree" class="icon-btn" title="Reorder bookmarks alphabetically (A-Z)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h7M3 12h5M3 18h3M15 6l6 6-6 6M21 12H11"></path></svg>
+        </button>
         <button id="btn-refresh-tree" class="icon-btn" title="Refresh Tree">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
         </button>
@@ -262,7 +304,7 @@
     <!-- Footer -->
     <footer class="app-footer">
       <span class="source-truth-tag">Chrome Bookmarks API • Source of Truth</span>
-      <span class="version-tag">v1.0</span>
+      <span class="version-tag">v1.1</span>
     </footer>
   </div>
 

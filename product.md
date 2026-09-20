@@ -1,4 +1,4 @@
-# AI Chrome Bookmark Organizer — Product Specification
+# AI Chrome Bookmark Organizer — Product Specification (v1.1.0)
 
 ## 1. Product
 
@@ -8,14 +8,22 @@ An intelligent Chrome extension that allows users to save active webpages and au
 
 ## 2. Core User Flows
 
-### 2.1 Save Current Page
+### 2.1 Save Current Page & Smart Suggestion
 ```text
 Open webpage
-→ Click extension icon
+→ Click extension icon (Tab 1)
 → Auto-detect title, URL & favicon
-→ Auto-suggest category & tags
-→ Click "Save Bookmark"
-→ Created in native Chrome bookmark bar/folder
+→ Scoped Duplicate Check (strictly inside active bookmarks, excluding Trash / Speed Dials / Old folders)
+   ├─ If ALREADY EXISTS:
+   │    → "Save Bookmark" button is hidden
+   │    → Prominent "Already Exists" amber card displayed with exact folder location
+   │    → "Show in Explorer" action to immediately view the bookmark in Tab 3
+   └─ If NEW (Not Saved):
+        → AI Suggestion Engine evaluates page classification against user's existing folders
+        → Matches existing folder (e.g., Docs, AI, Tools) OR proposes clean new category
+        → Auto-selects suggested folder with "✨ AI Suggested" badge
+        → Click "Save Bookmark"
+        → Native folder hierarchy created on demand & bookmark saved
 ```
 
 ### 2.2 Background Organization & Safety Gate
@@ -25,7 +33,7 @@ Click "Analyze & Propose Structure"
 → Read Bookmarks Bar tree
 → Hybrid 4-tier classification (Rules → Local AI → Direct API → Semantic Heuristic)
 → Real-time progress streaming (done/total items and percentage)
-→ Generate folder hierarchy plan
+→ Generate folder hierarchy plan (respects "Always organize in alphabetical order (A-Z)")
 → Desktop notification & "PLAN" badge on icon
 → User reviews visual diff preview (folders created, moves, empty cleanups)
 → User approves: click "Apply Changes"
@@ -54,6 +62,30 @@ User saves clean tree baseline
 → Click "Roll Back to Saved" anytime
 → System clears current tree and faithfully reconstructs saved baseline
 → Speed Dials and Trash explicitly excluded from restoration
+```
+
+### 2.5 Bookmark Search in Settings
+```text
+Open Extension Settings (options.html)
+→ Navigate to Section 4: Bookmark Search
+→ Type search query into live search bar
+→ Select criteria chips: All Fields, Page Title, URL, or Tags / Category
+→ Interactive result cards display favicon, title, URL, and folder hierarchy
+→ Click tag pills to immediately filter by tag
+→ Quick actions: "Copy URL" (with clipboard feedback) or "Open" in new tab
+```
+
+### 2.6 Alphabetical Sorting & Reordering
+```text
+One-Click Reorder (popup.html):
+→ Click "Reorder A-Z" in Organize toolbar or Explorer header
+→ Engine reorders folders A-Z followed by bookmarks A-Z recursively
+→ Applied instantly to native Chrome Bookmarks Bar
+
+Automated Organization Setting (options.html):
+→ Toggle "Always organize bookmarks in alphabetical order (A-Z)"
+→ Persists to chrome.storage.local (sortAlphabetical: true)
+→ Background analysis and organizer engine order categories, subfolders, and moves A-Z
 ```
 
 ---
@@ -92,16 +124,16 @@ Bookmark (URL + Title)
 
 ## 5. Technical Architecture
 
-### Extension (Client)
-- **Manifest**: Chrome Manifest V3
-- **Background Worker**: `service-worker.js` (handles asynchronous analysis, apply jobs, and notifications)
+### Extension (Client — v1.1.0)
+- **Manifest**: Chrome Manifest V3 (`version: 1.1.0`)
+- **Background Worker**: `service-worker.js` (handles asynchronous analysis, apply jobs, desktop notifications, and alphabetical ordering)
 - **UI Components**:
-  - `popup.html` / `popup.js` / `popup.css`: Glassmorphic dark UI with real-time progress bar, item counters, and Stop button
-  - `options.html` / `options.js` / `options.css`: Settings panel with direct AI key configuration and constraint toggles
-- **Storage**: `chrome.storage.local` for pending plans, baseline snapshots, and user settings
+  - `popup.html` / `popup.js` / `popup.css`: Glassmorphic dark UI with smart AI folder suggestion on save, duplicate website detection, "Reorder A-Z" action, progress bar, and Stop button
+  - `options.html` / `options.js` / `options.css`: Settings panel with direct AI key configuration, constraint toggles, alphabetical sorting toggle, and interactive Bookmark Search
+- **Storage**: `chrome.storage.local` for pending plans, baseline snapshots, pre-restore safety nets, and user settings
 
-### Backend (Server)
-- **Framework**: Python 3.10+ / FastAPI / Uvicorn
+### Backend (Server — v1.1.0)
+- **Framework**: Python 3.10+ / FastAPI / Uvicorn (API `v1.1.0`)
 - **HTTP Client**: `httpx.AsyncClient` with 7.0s fail-fast timeout
 - **Circuit Breaker**: 60s cooldown on provider failure to prevent cascading timeouts across batch chunks
 - **Encoding**: UTF-8 reconfigured stdout/stderr on Windows

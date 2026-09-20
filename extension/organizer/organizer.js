@@ -22,6 +22,53 @@ if (typeof require !== 'undefined') {
 }
 
 /**
+ * Parses and normalizes excluded folder names from string, array, or set.
+ * @param {string|string[]|Set<string>} excluded
+ * @returns {string[]} Lowercase trimmed folder names
+ */
+function parseExcludedFolderNames(excluded) {
+  if (!excluded) return [];
+  if (excluded instanceof Set) {
+    return Array.from(excluded).map(s => String(s).trim().toLowerCase()).filter(Boolean);
+  }
+  if (Array.isArray(excluded)) {
+    return excluded.map(s => String(s).trim().toLowerCase()).filter(Boolean);
+  }
+  if (typeof excluded === 'string') {
+    return excluded
+      .split(/[,;\n]+/)
+      .map(s => s.trim().toLowerCase())
+      .filter(Boolean);
+  }
+  return [];
+}
+
+/**
+ * Checks if a folder or path is excluded.
+ * @param {string} [title]
+ * @param {string} [path]
+ * @param {string[]} excludedList
+ * @returns {boolean}
+ */
+function isFolderExcluded(title, path, excludedList) {
+  if (!excludedList || excludedList.length === 0) return false;
+  if (title) {
+    const cleanTitle = String(title).trim().toLowerCase();
+    if (excludedList.includes(cleanTitle)) return true;
+  }
+  if (path) {
+    const segments = String(path)
+      .split(' / ')
+      .map(s => s.trim().toLowerCase())
+      .filter(Boolean);
+    for (const seg of segments) {
+      if (excludedList.includes(seg)) return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Generates a proposed organization plan based on classified bookmarks.
  * @param {Array} classifiedBookmarks Bookmarks with .classification attached
  * @param {Array} existingFolders List of currently existing folders
@@ -34,20 +81,54 @@ function generateOrganizationPlan(classifiedBookmarks, existingFolders, options 
   const cleanEmptyFolders = options.cleanEmptyFolders !== false;
   const minBookmarksPerFolder = options.minBookmarksPerFolder || 1;
   const mergeSingleItemSubfolders = options.mergeSingleItemSubfolders !== false; // Default true: merge single-site subfolders
+  const excludedFolders = parseExcludedFolderNames(options.excludedFolders);
 
-  // Build index of existing folders by path and title under target parent
+  // Build index of existing folders by ID and by title under target parent
+  const existingFolderById = new Map();
   const existingFolderByTitle = new Map();
   for (const f of existingFolders) {
+    existingFolderById.set(String(f.id), f);
     if (f.parentId === targetParentId) {
       existingFolderByTitle.set(f.title.toLowerCase().trim(), f);
     }
   }
 
+  // Helper to test if a bookmark is inside an excluded / protected folder
+  function isBookmarkExcluded(b) {
+    if (excludedFolders.length === 0) return false;
+    if (b.folderPath && isFolderExcluded(null, b.folderPath, excludedFolders)) {
+      return true;
+    }
+    if (b.parentId && existingFolderById.has(String(b.parentId))) {
+      const parentF = existingFolderById.get(String(b.parentId));
+      if (isFolderExcluded(parentF.title, parentF.path, excludedFolders)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // Group bookmarks by proposed folder path
   // Category -> Subcategory
   const groups = new Map(); // pathKey -> { pathSegments, bookmarks: [] }
+  const protectedBookmarks = [];
+  const protectedFolderNames = new Set();
 
   for (const b of classifiedBookmarks) {
+    // If bookmark belongs to an excluded folder (e.g. CDH), PRESERVE IT IN PLACE!
+    if (isBookmarkExcluded(b)) {
+      protectedBookmarks.push(b);
+      if (b.folderPath) {
+        const segs = b.folderPath.split(' / ').map(s => s.trim()).filter(Boolean);
+        for (const seg of segs) {
+          if (excludedFolders.includes(seg.toLowerCase())) {
+            protectedFolderNames.add(seg);
+          }
+        }
+      }
+      continue; // NEVER regroup or move protected bookmarks
+    }
+
     const cls = b.classification || { category: 'Other', subcategory: 'General' };
     let category = (cls.category || 'Other').trim();
     let subcategory = (cls.subcategory || 'General').trim();
@@ -153,13 +234,32 @@ function generateOrganizationPlan(classifiedBookmarks, existingFolders, options 
       segments: pathStr.split(' / '),
       depth: pathStr.split(' / ').length
     }))
-    .sort((a, b) => a.depth - b.depth);
+    .sort((a, b) => {
+      if (a.depth !== b.depth) return a.depth - b.depth;
+      return options.sortAlphabetical ? a.pathStr.localeCompare(b.pathStr) : 0;
+    });
+
+  // If alphabetical sorting is enabled, sort planned moves so bookmarks are created/moved in A-Z order
+  if (options.sortAlphabetical) {
+    plannedMoves.sort((a, b) => {
+      const folderCmp = (a.toFolder || '').localeCompare(b.toFolder || '', undefined, { sensitivity: 'base', numeric: true });
+      if (folderCmp !== 0) return folderCmp;
+      const titleA = (a.title || a.url || '').trim();
+      const titleB = (b.title || b.url || '').trim();
+      return titleA.localeCompare(titleB, undefined, { sensitivity: 'base', numeric: true });
+    });
+  }
 
   // Identify folders that will become empty after moves
   const foldersToDelete = [];
   if (cleanEmptyFolders) {
     for (const f of existingFolders) {
       if (!f.isSystem && !_SYSTEM_FOLDER_IDS.has(String(f.id))) {
+        // Safety check: NEVER delete an excluded / protected folder (e.g. CDH)!
+        if (isFolderExcluded(f.title, f.path, excludedFolders)) {
+          continue;
+        }
+
         // Count bookmarks in folder that are NOT moving
         const remainingBookmarks = f.bookmarkIds.filter(id => !movingBookmarkIds.has(id));
         // Count child folders
@@ -181,6 +281,9 @@ function generateOrganizationPlan(classifiedBookmarks, existingFolders, options 
 
   return {
     targetParentId,
+    excludedFolders,
+    protectedFolderNames: Array.from(protectedFolderNames),
+    sortAlphabetical: !!options.sortAlphabetical,
     newFolders: sortedNewFolders,
     moves: plannedMoves,
     foldersToDelete,
@@ -188,6 +291,7 @@ function generateOrganizationPlan(classifiedBookmarks, existingFolders, options 
       totalBookmarks: classifiedBookmarks.length,
       movedCount: plannedMoves.length,
       unchangedCount,
+      protectedCount: protectedBookmarks.length,
       newFoldersCount: sortedNewFolders.length,
       cleanFoldersCount: foldersToDelete.length
     }
@@ -324,8 +428,9 @@ async function executeOrganizationPlan(plan, rawTree, originalBookmarks, onProgr
   let deletedFoldersCount = 0;
   if (plan.cleanEmptyFolders !== false) {
     onProgress(90, 'Cleaning up empty folders...');
+    const excludedFolders = parseExcludedFolderNames(plan.excludedFolders);
 
-    async function pruneEmptyFolders(parentId) {
+    async function pruneEmptyFolders(parentId, currentPathSegments = []) {
       let count = 0;
       try {
         const sub = await chrome.bookmarks.getSubTree(parentId);
@@ -333,21 +438,33 @@ async function executeOrganizationPlan(plan, rawTree, originalBookmarks, onProgr
 
         for (const child of sub[0].children) {
           if (!child.url) {
-            // Safety check: Never delete system folders
+            // Safety check 1: Never delete system folders
             if (_SYSTEM_FOLDER_IDS.has(String(child.id))) continue;
 
+            const childTitle = (child.title || '').trim();
+            const childPathSegments = [...currentPathSegments, childTitle];
+            const childPathStr = childPathSegments.join(' / ');
+
+            // Safety check 2: Never delete excluded / protected folders (e.g. CDH)!
+            if (isFolderExcluded(childTitle, childPathStr, excludedFolders)) {
+              continue;
+            }
+
             // Recursively prune subfolders first (bottom-up)
-            count += await pruneEmptyFolders(child.id);
+            count += await pruneEmptyFolders(child.id, childPathSegments);
 
             // Re-check this folder after subfolder pruning
             try {
               const recheck = await chrome.bookmarks.getSubTree(child.id);
               if (recheck && recheck[0]) {
                 const remainingChildren = recheck[0].children || [];
-                // If folder is now completely empty, remove it!
+                // If folder is now completely empty, remove it (confirming it's not excluded)
                 if (remainingChildren.length === 0) {
-                  await chrome.bookmarks.remove(child.id);
-                  count++;
+                  const recheckTitle = (recheck[0].title || '').trim();
+                  if (!isFolderExcluded(recheckTitle, childPathStr, excludedFolders)) {
+                    await chrome.bookmarks.remove(child.id);
+                    count++;
+                  }
                 }
               }
             } catch (e) {
@@ -369,6 +486,16 @@ async function executeOrganizationPlan(plan, rawTree, originalBookmarks, onProgr
     deletedFoldersCount = totalPruned;
   }
 
+  // Step 4: If alphabetical sorting was requested, reorder all folders & bookmarks A-Z
+  if (plan.sortAlphabetical && !wasCancelled) {
+    onProgress(95, 'Sorting organized bookmarks alphabetically (A-Z)...');
+    try {
+      await sortBookmarksAlphabetically(targetParentId, { recursive: true });
+    } catch (err) {
+      console.warn('Could not sort bookmarks alphabetically after organization:', err);
+    }
+  }
+
   if (wasCancelled) {
     onProgress(100, `Arranging cancelled. Stopped after ${movesCompleted} moves.`);
   } else {
@@ -385,13 +512,206 @@ async function executeOrganizationPlan(plan, rawTree, originalBookmarks, onProgr
   };
 }
 
+/**
+ * Standalone function to reorder all bookmarks and subfolders within a parent folder in alphabetical order (A-Z).
+ * Subfolders are sorted first alphabetically (A-Z), followed by individual bookmarks (A-Z).
+ * @param {string} [targetParentId='1'] Root folder ID to sort
+ * @param {Object} [options={}] Options { recursive: true }
+ * @param {Function} [onProgress=()=>{}] Progress callback
+ * @returns {Promise<{ success: boolean, sortedFoldersCount: number, sortedBookmarksCount: number }>}
+ */
+async function sortBookmarksAlphabetically(targetParentId = '1', options = {}, onProgress = () => {}) {
+  if (typeof chrome === 'undefined' || !chrome.bookmarks) {
+    throw new Error('chrome.bookmarks API is not available');
+  }
+
+  let sortedFoldersCount = 0;
+  let sortedBookmarksCount = 0;
+  const isRecursive = options.recursive !== false;
+
+  async function sortFolder(folderId) {
+    let sub;
+    try {
+      sub = await chrome.bookmarks.getSubTree(String(folderId));
+    } catch (e) {
+      return;
+    }
+    if (!sub || !sub[0] || !sub[0].children) return;
+
+    const children = [...sub[0].children];
+    if (children.length <= 1) {
+      if (isRecursive && children.length === 1 && !children[0].url) {
+        await sortFolder(children[0].id);
+      }
+      return;
+    }
+
+    const folders = [];
+    const bookmarks = [];
+    for (const child of children) {
+      if (child.url) {
+        bookmarks.push(child);
+      } else {
+        folders.push(child);
+      }
+    }
+
+    // Sort folders A-Z by title
+    folders.sort((a, b) => {
+      const titleA = (a.title || '').trim();
+      const titleB = (b.title || '').trim();
+      return titleA.localeCompare(titleB, undefined, { sensitivity: 'base', numeric: true });
+    });
+
+    // Sort bookmarks A-Z by title (fallback to URL)
+    bookmarks.sort((a, b) => {
+      const titleA = (a.title || a.url || '').trim();
+      const titleB = (b.title || b.url || '').trim();
+      return titleA.localeCompare(titleB, undefined, { sensitivity: 'base', numeric: true });
+    });
+
+    const desiredOrder = [...folders, ...bookmarks];
+
+    for (let targetIndex = 0; targetIndex < desiredOrder.length; targetIndex++) {
+      const item = desiredOrder[targetIndex];
+      const currentIndex = children.findIndex(c => String(c.id) === String(item.id));
+      if (currentIndex !== targetIndex && currentIndex !== -1) {
+        try {
+          await chrome.bookmarks.move(item.id, { index: targetIndex });
+          const [moved] = children.splice(currentIndex, 1);
+          children.splice(targetIndex, 0, moved);
+          if (item.url) sortedBookmarksCount++;
+          else sortedFoldersCount++;
+        } catch (e) {
+          console.warn(`Could not reorder item "${item.title}":`, e.message);
+        }
+      }
+    }
+
+    if (isRecursive) {
+      for (const f of folders) {
+        await sortFolder(f.id);
+      }
+    }
+  }
+
+  onProgress(10, 'Reordering bookmarks alphabetically...');
+  await sortFolder(targetParentId);
+  onProgress(100, `Alphabetical reordering complete! (${sortedBookmarksCount} bookmarks, ${sortedFoldersCount} folders sorted)`);
+
+  return {
+    success: true,
+    sortedFoldersCount,
+    sortedBookmarksCount,
+    sortedFolders: sortedFoldersCount,
+    sortedBookmarks: sortedBookmarksCount,
+    sortedNodes: sortedFoldersCount + sortedBookmarksCount
+  };
+}
+
+/**
+ * Suggests the best folder destination for a bookmark given its classification and user folders.
+ * Prioritizes matching existing folders (by subcategory, category, path, or tags).
+ * If no existing folder is a good match, suggests creating a clean new folder hierarchy.
+ * @param {Object} classification { category, subcategory, tags }
+ * @param {Array} folders Array of existing folder objects from parseBookmarkTree
+ * @returns {{ isNew: boolean, existingFolderId?: string, folderTitle: string, folderPath?: string, suggestedPath?: string, score?: number }}
+ */
+function suggestBookmarkFolder(classification, folders = []) {
+  if (!classification) {
+    return { isNew: false, existingFolderId: '1', folderTitle: 'Bookmarks Bar (Root)', folderPath: 'Bookmarks Bar' };
+  }
+
+  const category = (classification.category || '').trim();
+  const subcategory = (classification.subcategory || '').trim();
+  const catLower = category.toLowerCase();
+  const subLower = subcategory.toLowerCase();
+  const tags = Array.isArray(classification.tags)
+    ? classification.tags.map(t => String(t).toLowerCase().trim())
+    : [];
+
+  const userFolders = (folders || []).filter(f => !f.isSystem && f.id !== '0' && f.id !== '1' && f.id !== '2' && f.id !== '3');
+
+  let bestFolder = null;
+  let highestScore = 0;
+
+  for (const f of userFolders) {
+    const fTitle = (f.title || '').toLowerCase().trim();
+    const fPath = (f.path || '').toLowerCase().trim();
+    let score = 0;
+
+    // Exact match with subcategory (e.g. folder "Docs" vs subcategory "Docs", or "Tools" vs "Tools")
+    if (subLower && fTitle === subLower) {
+      score = 100;
+    }
+    // Exact match with category (e.g. folder "Programming", "Design", "Gaming")
+    else if (catLower && fTitle === catLower) {
+      score = 90;
+    }
+    // Folder path ends with subcategory or category
+    else if (subLower && fPath.endsWith(' / ' + subLower)) {
+      score = 95;
+    }
+    else if (catLower && fPath.includes(catLower)) {
+      score = 85;
+    }
+    // Subcategory contains folder title or folder title contains subcategory
+    else if (subLower && (subLower.includes(fTitle) || fTitle.includes(subLower)) && fTitle.length >= 3) {
+      score = 80;
+    }
+    // Category contains folder title or folder title contains category (e.g. folder "AI" matching "AI & Machine Learning")
+    else if (catLower && (catLower.includes(fTitle) || fTitle.includes(catLower)) && fTitle.length >= 2) {
+      score = 75;
+    }
+    // Tag matches folder title
+    else if (tags.some(t => t === fTitle || (t.length >= 3 && (fTitle.includes(t) || t.includes(fTitle))))) {
+      score = 70;
+    }
+
+    if (score > highestScore) {
+      highestScore = score;
+      bestFolder = f;
+    }
+  }
+
+  if (bestFolder && highestScore >= 70) {
+    return {
+      isNew: false,
+      existingFolderId: String(bestFolder.id),
+      folderTitle: bestFolder.title,
+      folderPath: bestFolder.path,
+      score: highestScore
+    };
+  }
+
+  // If no existing folder matches well, suggest a clean new folder path
+  const suggestedPath = (category && subcategory)
+    ? `${category} / ${subcategory}`
+    : (category || 'General Bookmarks');
+
+  return {
+    isNew: true,
+    suggestedPath,
+    folderTitle: subcategory || category || 'New Folder'
+  };
+}
+
 const _rootOrganizer = typeof window !== 'undefined' ? window : (typeof self !== 'undefined' ? self : globalThis);
 _rootOrganizer.generateOrganizationPlan = generateOrganizationPlan;
 _rootOrganizer.executeOrganizationPlan = executeOrganizationPlan;
+_rootOrganizer.sortBookmarksAlphabetically = sortBookmarksAlphabetically;
+_rootOrganizer.parseExcludedFolderNames = parseExcludedFolderNames;
+_rootOrganizer.isFolderExcluded = isFolderExcluded;
+_rootOrganizer.suggestBookmarkFolder = suggestBookmarkFolder;
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     generateOrganizationPlan,
-    executeOrganizationPlan
+    executeOrganizationPlan,
+    sortBookmarksAlphabetically,
+    parseExcludedFolderNames,
+    isFolderExcluded,
+    suggestBookmarkFolder
   };
 }
+

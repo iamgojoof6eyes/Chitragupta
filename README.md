@@ -1,4 +1,4 @@
-# Chitragupta — AI Chrome Bookmark Organizer
+# Chitragupta — AI Chrome Bookmark Organizer (v1.1.0)
 
 An intelligent, safety-first Chrome extension and FastAPI backend that organizes your Chrome bookmarks into clean, intuitive folder hierarchies using deterministic rules, semantic heuristics, and state-of-the-art AI (NVIDIA NIM / Google Gemini).
 
@@ -8,10 +8,11 @@ An intelligent, safety-first Chrome extension and FastAPI backend that organizes
 
 ## Key Features
 
-1. **One-Click Save Current Tab**:
+1. **Smart One-Click Save & AI Folder Suggestion**:
    - Detects active tab title, URL, and favicon automatically.
-   - Suggests category and keyword tags in real-time.
-   - Saves to "AI Bookmarks" or a custom folder with a single click.
+   - **Scoped Duplicate Detection**: Checks if the site already exists in your active bookmarks bar (strictly ignoring Trash, Bin, and Speed Dials).
+   - If already saved, hides the "Save Bookmark" button and displays an informative **"Already Exists"** card with its current location and a **"Show in Explorer"** shortcut.
+   - If new, the **AI Suggestion Engine** scores and matches the page against your existing folder taxonomy (e.g. `AI`, `Docs`, `Tools`) or proposes a clean new hierarchy, auto-selecting it with an **"✨ AI Suggested"** badge.
 
 2. **Automated Hybrid Classification**:
    - **Tier 1 (Instant Rules Engine)**: 100+ domain and keyword patterns (GitHub, LeetCode, arXiv, YouTube, etc.) for zero-latency, local-only organization.
@@ -33,20 +34,33 @@ An intelligent, safety-first Chrome extension and FastAPI backend that organizes
 5. **Tree Baseline Snapshots & Reliable Rollback**:
    - Save your current bookmark structure as a named baseline snapshot.
    - Roll back to the saved baseline anytime with a single click.
+   - **Restore Previous Structure**: Dynamic 1-click restore to roll back to the structure immediately preceding the last reorganization.
    - Browser Trash and Speed Dials are strictly excluded from restoration.
    - Export and restore bookmarks from full JSON snapshots.
 
 6. **Strict Safety Gates & Deep Cleanup**:
    - **Visual Diff Preview**: Review proposed folders, moves, and empty folder cleanups *before* applying anything.
+   - **Protected / Excluded Folders**: Folders in exceptions (e.g., `CDH`, `Work`) and their child bookmarks are 100% immune from moves, regrouping, or deletion.
    - **Automatic Pre-Execution Backup**: Full bookmark snapshot created before every modification.
    - **Zero Bookmark Deletion**: Chitragupta will *never* delete a bookmark.
    - **Multi-Pass Empty Folder Pruning**: Deep bottom-up cleanup (up to 3 passes) guarantees zero cascading empty folders are left behind.
    - **Configurable Subfolder Merging**: Single-item subfolders can be automatically merged into their parent folder to eliminate clutter (toggleable in settings).
    - **System Folder Protection**: Default roots (`Bookmarks bar`, `Other bookmarks`, `Mobile bookmarks`) are strictly guarded.
 
-7. **Tree Explorer & Search**:
+7. **Tree Explorer & Duplicate Management**:
    - Search the entire bookmark hierarchy in real-time.
    - Detects duplicate bookmark URLs automatically with count badges.
+   - Quick "Reorder A-Z" action to instantly sort folders and bookmarks.
+
+8. **Live Bookmark Search in Settings**:
+   - Dedicated search engine in Extension Settings (Options page).
+   - Search across **All Fields**, **Page Title**, **URL**, or **Tags / Category**.
+   - Interactive tag pills with instant click-to-filter capability.
+   - Quick actions to copy bookmark URL to clipboard or open in a new tab.
+
+9. **Alphabetical (A-Z) Reordering & Persistent Auto-Sort**:
+   - One-click "Reorder A-Z" in Organize toolbar and Explorer tab to recursively sort folders A-Z followed by bookmarks A-Z.
+   - User preference setting: **"Always organize bookmarks in alphabetical order (A-Z)"** to ensure every automated organization arranges folders and bookmarks cleanly A-Z.
 
 ---
 
@@ -108,7 +122,7 @@ Chitragupta/
 ├── .gitignore                     # Git exclusion rules (secrets, venv, cache)
 ├── README.md                      # Complete system documentation
 ├── product.md                     # Product specifications & requirements
-├── AI_Chrome_Bookmark_Organizer_Process_Flow.md  # Architectural flow & diagrams
+├── Process_flow.md                # Architectural flow & diagrams
 ├── LICENSE                        # MIT License
 ├── start_backend.bat              # Windows batch launcher
 ├── start_backend.ps1              # Windows PowerShell launcher
@@ -140,7 +154,7 @@ Chitragupta/
 │   ├── .env.example               # Template environment configuration
 │   └── .env                       # Local secrets (gitignored)
 └── tests/
-    └── test_organizer.js          # Automated Node.js unit test suite (10 test cases)
+    └── test_organizer.js          # Automated Node.js unit test suite (16 test cases)
 ```
 
 ---
@@ -159,4 +173,4 @@ python backend/run_server.py --test
 
 ## License
 
-This project is licensed under the terms of the [MIT License](file:///c:/Dev/Chitragupta/LICENSE).
+This project is licensed under the terms of the [MIT License](./LICENSE).

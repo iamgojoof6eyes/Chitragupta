@@ -25,6 +25,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnSaveSettings = document.getElementById('btn-save-settings');
   const saveStatus = document.getElementById('save-status');
 
+  const alwaysSortAlphabeticalCheckbox = document.getElementById('always-sort-alphabetical');
+  const bookmarkSearchInput = document.getElementById('bookmark-search-input');
+  const btnClearSearch = document.getElementById('btn-clear-search');
+  const searchFieldRadios = document.querySelectorAll('input[name="search-field"]');
+  const searchResultsContainer = document.getElementById('search-results-container');
+  const searchResultsSummary = document.getElementById('search-results-summary');
+  const searchResultsCountText = document.getElementById('search-results-count-text');
+  const searchCountBadge = document.getElementById('search-count-badge');
+
   function updateAiIntelligenceBadge() {
     if (!aiStatusBadge) return;
     const provider = aiProviderSelect.value;
@@ -54,7 +63,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       minBookmarks: '2',
       mergeSingleItemSubfolders: true,
       excludedFolders: '',
-      cleanEmptyFolders: true
+      cleanEmptyFolders: true,
+      sortAlphabetical: false
     };
 
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
@@ -75,6 +85,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     excludedFoldersInput.value = settings.excludedFolders;
     cleanEmptyCheckbox.checked = settings.cleanEmptyFolders;
+    if (alwaysSortAlphabeticalCheckbox) {
+      alwaysSortAlphabeticalCheckbox.checked = settings.sortAlphabetical === true;
+    }
 
     toggleApiKeyVisibility();
     updateAiIntelligenceBadge();
@@ -150,7 +163,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       minBookmarks: minBookmarksSelect.value,
       mergeSingleItemSubfolders: mergeSingleSubfoldersCheckbox ? mergeSingleSubfoldersCheckbox.checked : true,
       excludedFolders: excludedFoldersInput.value.trim(),
-      cleanEmptyFolders: cleanEmptyCheckbox.checked
+      cleanEmptyFolders: cleanEmptyCheckbox.checked,
+      sortAlphabetical: alwaysSortAlphabeticalCheckbox ? alwaysSortAlphabeticalCheckbox.checked : false
     };
 
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
@@ -168,6 +182,251 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   btnSaveSettings.addEventListener('click', saveSettings);
+
+  // ==========================================
+  // Bookmark Search Engine (Tags / URL / Title)
+  // ==========================================
+  let indexedBookmarks = [];
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
+  }
+
+  function extractDomain(url) {
+    try {
+      const parsed = new URL(url);
+      return parsed.hostname.replace(/^www\./i, '');
+    } catch {
+      return '';
+    }
+  }
+
+  // Load and index all bookmarks from Chrome/browser tree
+  async function indexAllBookmarks() {
+    if (typeof chrome === 'undefined' || !chrome.bookmarks) {
+      if (searchCountBadge) searchCountBadge.textContent = '0 Bookmarks';
+      return;
+    }
+
+    try {
+      const tree = await chrome.bookmarks.getTree();
+      const flatList = [];
+
+      function traverse(node, currentSegments = []) {
+        if (node.url) {
+          const domain = extractDomain(node.url);
+          const domainToken = domain.split('.')[0] || '';
+          const folderTags = currentSegments.filter(s => !['bookmarks bar', 'other bookmarks', 'mobile bookmarks'].includes(s.toLowerCase()));
+          const tags = Array.from(new Set([...folderTags, domainToken].filter(Boolean)));
+
+          flatList.push({
+            id: String(node.id),
+            title: node.title || domain || 'Untitled Bookmark',
+            url: node.url,
+            domain,
+            folderPath: currentSegments.join(' / '),
+            tags,
+            searchTitle: (node.title || '').toLowerCase(),
+            searchUrl: (node.url || '').toLowerCase(),
+            searchTags: tags.join(' ').toLowerCase()
+          });
+        }
+
+        if (node.children && Array.isArray(node.children)) {
+          const cleanTitle = (node.title || '').trim();
+          const nextSegments = cleanTitle ? [...currentSegments, cleanTitle] : currentSegments;
+          for (const child of node.children) {
+            traverse(child, nextSegments);
+          }
+        }
+      }
+
+      for (const root of tree) {
+        traverse(root, []);
+      }
+
+      indexedBookmarks = flatList;
+      if (searchCountBadge) {
+        searchCountBadge.textContent = `${indexedBookmarks.length} Bookmarks`;
+      }
+    } catch (e) {
+      console.warn('Could not index bookmarks for search:', e);
+      if (searchCountBadge) searchCountBadge.textContent = 'Unavailable';
+    }
+  }
+
+  function getActiveSearchField() {
+    for (const r of searchFieldRadios) {
+      if (r.checked) return r.value;
+    }
+    return 'all';
+  }
+
+  function renderSearchResults(results, query) {
+    if (!searchResultsContainer) return;
+    searchResultsContainer.innerHTML = '';
+
+    if (!query) {
+      if (searchResultsSummary) searchResultsSummary.classList.add('hidden');
+      searchResultsContainer.innerHTML = `
+        <div class="search-placeholder">
+          Type in the box above to instantly search through ${indexedBookmarks.length} bookmarks.
+        </div>
+      `;
+      return;
+    }
+
+    if (searchResultsSummary && searchResultsCountText) {
+      searchResultsSummary.classList.remove('hidden');
+      searchResultsCountText.textContent = `${results.length} match${results.length === 1 ? '' : 'es'} for "${query}"`;
+    }
+
+    if (results.length === 0) {
+      searchResultsContainer.innerHTML = `
+        <div class="search-no-results">
+          No bookmarks found matching "<strong>${escapeHtml(query)}</strong>". Try another keyword or change search criteria.
+        </div>
+      `;
+      return;
+    }
+
+    // Render up to 100 results for fast DOM performance
+    const toRender = results.slice(0, 100);
+    for (const item of toRender) {
+      const card = document.createElement('div');
+      card.className = 'search-result-item';
+
+      const faviconUrl = item.domain
+        ? `https://www.google.com/s2/favicons?domain=${encodeURIComponent(item.domain)}&sz=32`
+        : '';
+
+      const tagsHtml = item.tags.length > 0
+        ? item.tags.map(t => `<span class="tag-badge" data-tag="${escapeHtml(t)}">🏷️ ${escapeHtml(t)}</span>`).join('')
+        : '';
+      const folderBadge = item.folderPath
+        ? `<span class="tag-badge folder-badge" title="Folder: ${escapeHtml(item.folderPath)}">📁 ${escapeHtml(item.folderPath.split(' / ').pop())}</span>`
+        : '';
+
+      card.innerHTML = `
+        <div class="result-main">
+          <div class="result-title-row">
+            ${faviconUrl ? `<img class="result-favicon" src="${faviconUrl}" alt="" onerror="this.style.display='none'">` : ''}
+            <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="result-title" title="${escapeHtml(item.title)}">
+              ${escapeHtml(item.title)}
+            </a>
+          </div>
+          <span class="result-url" title="${escapeHtml(item.url)}">${escapeHtml(item.url)}</span>
+          <div class="result-tags-row">
+            ${folderBadge}
+            ${tagsHtml}
+          </div>
+        </div>
+        <div class="result-actions">
+          <button class="btn-result-action btn-copy-url" data-url="${escapeHtml(item.url)}" title="Copy URL">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            Copy
+          </button>
+          <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="btn-result-action" title="Open Link">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            Open
+          </a>
+        </div>
+      `;
+
+      // Copy URL button listener
+      const copyBtn = card.querySelector('.btn-copy-url');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          try {
+            await navigator.clipboard.writeText(item.url);
+            copyBtn.textContent = 'Copied!';
+            setTimeout(() => {
+              copyBtn.innerHTML = `
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Copy
+              `;
+            }, 1500);
+          } catch (err) {
+            console.warn('Clipboard error:', err);
+          }
+        });
+      }
+
+      // Clicking tag badge sets search query to that tag
+      const tagElements = card.querySelectorAll('.tag-badge[data-tag]');
+      tagElements.forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          const t = el.getAttribute('data-tag');
+          if (t && bookmarkSearchInput) {
+            bookmarkSearchInput.value = t;
+            // Switch radio to tags
+            const tagRadio = document.querySelector('input[name="search-field"][value="tags"]');
+            if (tagRadio) tagRadio.checked = true;
+            executeSearch();
+          }
+        });
+      });
+
+      searchResultsContainer.appendChild(card);
+    }
+  }
+
+  function executeSearch() {
+    if (!bookmarkSearchInput) return;
+    const query = bookmarkSearchInput.value.trim();
+
+    if (btnClearSearch) {
+      if (query) btnClearSearch.classList.remove('hidden');
+      else btnClearSearch.classList.add('hidden');
+    }
+
+    if (!query) {
+      renderSearchResults([], '');
+      return;
+    }
+
+    const field = getActiveSearchField();
+    const qLower = query.toLowerCase();
+
+    const matches = indexedBookmarks.filter(item => {
+      if (field === 'title') {
+        return item.searchTitle.includes(qLower);
+      } else if (field === 'url') {
+        return item.searchUrl.includes(qLower);
+      } else if (field === 'tags') {
+        return item.searchTags.includes(qLower);
+      } else {
+        // 'all'
+        return item.searchTitle.includes(qLower) || item.searchUrl.includes(qLower) || item.searchTags.includes(qLower);
+      }
+    });
+
+    renderSearchResults(matches, query);
+  }
+
+  let searchDebounceTimer = null;
+  if (bookmarkSearchInput) {
+    bookmarkSearchInput.addEventListener('input', () => {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(executeSearch, 120);
+    });
+  }
+
+  if (btnClearSearch) {
+    btnClearSearch.addEventListener('click', () => {
+      if (bookmarkSearchInput) bookmarkSearchInput.value = '';
+      executeSearch();
+      bookmarkSearchInput.focus();
+    });
+  }
+
+  searchFieldRadios.forEach(r => {
+    r.addEventListener('change', executeSearch);
+  });
 
   // Export Last Backup
   btnExportBackup.addEventListener('click', async () => {
@@ -202,4 +461,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   await loadSettings();
+  await indexAllBookmarks();
 });

@@ -59,7 +59,7 @@ class ChitraguptaApiClient {
           online: true,
           provider: data.provider || 'Local Rules Engine',
           aiConfigured: Boolean(data.ai_configured),
-          version: data.version || '1.0.0'
+          version: data.version || '1.1.0'
         };
         console.log(
           `%c[Chitragupta API] 🩺 Backend Online: %c${this.cachedStatus.provider} (AI configured: ${this.cachedStatus.aiConfigured})`,

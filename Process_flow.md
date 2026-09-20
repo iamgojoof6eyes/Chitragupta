@@ -1,20 +1,23 @@
-# AI-Powered Chrome Bookmark Organizer
+# AI-Powered Chrome Bookmark Organizer (v1.1.0)
 
 ## 1. Project Goal
 
 Build a Chrome extension that allows the user to:
 
 1. Save the currently open webpage with one click.
-2. Read and manage existing Chrome bookmarks.
-3. Automatically analyze bookmarks.
-4. Create a clean folder structure based on bookmark content.
-5. Move bookmarks into appropriate folders.
-6. Delete unnecessary/empty folders when requested.
-7. Preview proposed changes before applying them.
-8. Undo the last organization operation.
-9. Use a free AI API such as NVIDIA Build/NIM or Gemini for ambiguous classification.
+2. Intelligently suggest existing destination folders using AI classification matching the user's active taxonomy.
+3. Instantly detect if the current website is already saved in active bookmarks (strictly excluding Trash and Speed Dials), displaying an "Already Exists" state.
+4. Read and manage existing Chrome bookmarks safely without a shadow database.
+5. Automatically analyze bookmarks using a 4-tier hybrid engine (Rules, Local AI, Direct API, Heuristics).
+6. Create a clean folder structure based on bookmark content.
+7. Move bookmarks into appropriate folders while protecting excluded folders (e.g., `CDH`, `Work`).
+8. Preview proposed changes with visual diffs before applying them.
+9. Cancel or stop organization at any stage safely with zero bookmark loss.
+10. Roll back to the previous structure or a saved baseline snapshot.
+11. Search bookmarks in Settings across Title, URL, or Tags with interactive tag filtering.
+12. Recursively reorder folders and bookmarks in alphabetical order (A-Z) on demand or automatically.
 
-The Chrome bookmark tree remains the **source of truth**. No separate bookmark database is required for the first version.
+The Chrome bookmark tree remains the **source of truth**. No separate bookmark database is required.
 
 ---
 
@@ -33,12 +36,14 @@ The Chrome bookmark tree remains the **source of truth**. No separate bookmark d
                  ▼                         ▼
           Save Current Page          Organize Bookmarks
                  │                         │
+                 ├─ Scoped Duplicate Check │
+                 │  (Excludes Trash/Dials) │
                  │                         ▼
-                 │                chrome.bookmarks API
-                 │                         │
+                 ├─ AI Folder Match       chrome.bookmarks API
+                 │  (Existing Taxonomies)  │
                  │                         ▼
-                 │                  Bookmark Tree
-                 │                         │
+                 ▼                  Bookmark Tree
+          Create / Alert                   │
                  │                         ▼
                  │                  Classification
                  │                         │
@@ -64,24 +69,33 @@ The Chrome bookmark tree remains the **source of truth**. No separate bookmark d
 
 # 3. Core Features
 
-## 3.1 Save Current Page
+## 3.1 Save Current Page & Smart Suggestion
 
 When the user is browsing a webpage:
 
 ```text
 User opens webpage
        ↓
-Clicks extension
+Clicks extension icon (Tab 1: Save)
        ↓
-Extension popup opens
+Extension queries active tab (title, URL, favicon)
        ↓
-Shows current page
-       ↓
-User clicks "Save"
-       ↓
-Get active tab URL + title
-       ↓
-Save using Chrome Bookmarks API
+Scoped Duplicate Check (Searches active Bookmarks Bar, skips Trash / Speed Dials)
+       │
+       ├─► IF SITE ALREADY EXISTS:
+       │     • Hide "Save Bookmark" button
+       │     • Display prominent amber "Already Exists" card
+       │     • Show current folder location path
+       │     • Provide "Show in Explorer" button to inspect bookmark in Tab 3
+       │
+       └─► IF NEW SITE:
+             • Run Hybrid Classifier on active page metadata
+             • Score user's existing folders against category / subcategory / tags
+             • If good match found → auto-select existing folder (e.g., "AI", "Docs")
+             • If no match → suggest clean new folder path
+             • Display "✨ AI Suggested" badge next to folder selector
+             • User clicks "Save Bookmark"
+             • Create folder path if needed and save bookmark
 ```
 
 Example:
@@ -92,22 +106,25 @@ https://fastapi.tiangolo.com/
 
 Title:
 FastAPI
+
+Classification:
+Category: Programming | Subcategory: Web Development | Tags: Python, FastAPI, API
+
+Existing User Folders:
+["Bookmarks bar/Programming", "Bookmarks bar/Tools"]
+
+Score:
+"Bookmarks bar/Programming" matches Category → Selected automatically!
 ```
 
-The extension can create the bookmark using:
+The extension creates the bookmark using:
 
 ```javascript
 chrome.bookmarks.create({
-    parentId: "...",
+    parentId: targetFolderId,
     title: "FastAPI",
     url: "https://fastapi.tiangolo.com/"
 });
-```
-
-The first version can save everything into a default folder such as:
-
-```text
-AI Bookmarks
 ```
 
 ---
@@ -858,7 +875,92 @@ Incoming Batch of Ambiguous Bookmarks (25 items)
 
 ---
 
-# 21. Core Principle
+# 22. Save Tab & Scoped Duplicate Detection Architecture
+
+```text
+Active Browser Tab (Tab 1 opened in popup)
+                 │
+                 ▼
+  Evaluate Active Page & URL Normalization
+                 │
+                 ▼
+   Scoped Bookmarks Bar Search
+  (Strictly excludes Trash, Bin, Speed Dials)
+                 │
+       ┌─────────┴─────────┐
+       ▼                   ▼
+[Already Saved]       [New Website]
+       │                   │
+  Hide "Save"         Hybrid Classification
+       │                   │
+  Display Amber Card  Score User Existing Folders:
+  • Existing path     • Category match = +10
+  • "Show in Explorer"• Subcategory match = +15
+                      • Tag match = +5
+                           │
+                      Auto-Select Best Match OR Suggest New
+                           │
+                      Display "✨ AI Suggested" Badge
+                           │
+                      User clicks "Save Bookmark"
+                           │
+                      chrome.bookmarks.create()
+```
+
+---
+
+# 23. Live Bookmark Search & Alphabetical Sorting Architecture
+
+### 23.1 Settings Bookmark Search Engine
+
+```text
+User opens Options Settings → Section 4: Bookmark Search
+                 │
+                 ▼
+  Load & Cache Active Bookmarks Tree (excluding Trash)
+                 │
+  User enters query & selects filter criteria:
+  [All Fields] [Page Title] [URL] [Tags / Category]
+                 │
+                 ▼
+  Instant Reactive Filtering:
+  • Case-insensitive substring matching
+  • Domain & pathname extraction
+  • Interactive tag pill matching
+                 │
+                 ▼
+  Render Search Results:
+  • Favicon + Title + URL
+  • Full Folder Path Badge
+  • Clickable Tag Chips (instant refine)
+  • "Copy URL" (clipboard API with visual feedback)
+  • "Open" (creates new Chrome tab)
+```
+
+### 23.2 Recursive Alphabetical (A-Z) Reordering
+
+```text
+User triggers "Reorder A-Z" (Popup / Explorer) OR Auto-Sort is enabled
+                 │
+                 ▼
+  Parse Bookmark Tree Recursively:
+  For each folder node:
+    1. Separate child folders and bookmark URLs
+    2. Sort child folders alphabetically (case-insensitive)
+    3. Sort bookmark URLs alphabetically (case-insensitive)
+    4. Combined list: [Sorted Folders..., Sorted Bookmarks...]
+                 │
+                 ▼
+  Compare current index vs desired sorted index:
+  If changed → chrome.bookmarks.move(childId, { parentId, index })
+                 │
+                 ▼
+  Native Chrome Bookmarks Bar immediately reflects clean A-Z order
+```
+
+---
+
+# 24. Core Principle
 
 The most important architectural decision is:
 
@@ -884,4 +986,5 @@ The AI and heuristic rules decide **where things belong**.
 
 The Chrome Bookmarks API performs **the actual organization**.
 
-The user remains in full control through **diff preview, stop controls, backups, and baseline rollback**.
+The user remains in full control through **diff preview, stop controls, backups, baseline rollback, and search/sort utilities**.
+

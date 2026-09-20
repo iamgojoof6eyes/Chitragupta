@@ -25,7 +25,7 @@ from ai_service import (
 app = FastAPI(
     title="Chitragupta — AI Bookmark Organizer API",
     description="Local AI Backend for Chrome Extension bookmark classification and organization",
-    version="1.0.0"
+    version="1.1.0"
 )
 
 # Enable CORS for Chrome Extensions and localhost
@@ -68,7 +68,7 @@ def health():
     info = get_active_provider_info()
     return {
         "status": "healthy",
-        "version": "1.0.0",
+        "version": "1.1.0",
         **info
     }
 

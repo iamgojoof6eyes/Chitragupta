@@ -6,6 +6,35 @@
 
 const SYSTEM_FOLDER_IDS = new Set(['0', '1', '2', '3']);
 
+const IGNORED_FOLDER_NAMES = new Set([
+  'trash',
+  'bin',
+  'recycle bin',
+  'speed dial',
+  'speed dials',
+  'pinboard',
+  'unsynchronized pinboard',
+  'unsorted',
+  'unsorted bookmarks'
+]);
+
+/**
+ * Checks if a folder name or path belongs to Trash, Speed Dials, or older archive folders.
+ * @param {string} folderTitleOrPath
+ * @returns {boolean}
+ */
+function isTrashOrIgnoredFolder(folderTitleOrPath) {
+  if (!folderTitleOrPath) return false;
+  const clean = folderTitleOrPath.toLowerCase().trim();
+  if (IGNORED_FOLDER_NAMES.has(clean)) return true;
+  return clean.includes('/ trash') ||
+         clean.startsWith('trash') ||
+         clean.includes('/ bin') ||
+         clean.startsWith('bin') ||
+         clean.includes('speed dial') ||
+         clean.includes('pinboard');
+}
+
 /**
  * Normalizes a URL for comparison (removes tracking hashes, trailing slashes).
  * @param {string} url
@@ -59,6 +88,10 @@ function parseBookmarkTree(tree) {
 
     if (isFolder) {
       const cleanTitle = (node.title || '').trim();
+      // Skip trash, bin, speed dials, or older ignored folders
+      if (isTrashOrIgnoredFolder(cleanTitle) || isTrashOrIgnoredFolder(currentPath.join(' / '))) {
+        return;
+      }
       const nextPath = cleanTitle ? [...currentPath, cleanTitle] : currentPath;
       const folderInfo = {
         id: String(node.id),
@@ -152,6 +185,7 @@ _rootReader.normalizeUrl = normalizeUrl;
 _rootReader.getBookmarkTree = getBookmarkTree;
 _rootReader.parseBookmarkTree = parseBookmarkTree;
 _rootReader.getTargetParentFolders = getTargetParentFolders;
+_rootReader.isTrashOrIgnoredFolder = isTrashOrIgnoredFolder;
 
 // Support both ES module / Browser and CommonJS for automated unit testing
 if (typeof module !== 'undefined' && module.exports) {
@@ -160,6 +194,7 @@ if (typeof module !== 'undefined' && module.exports) {
     normalizeUrl,
     getBookmarkTree,
     parseBookmarkTree,
-    getTargetParentFolders
+    getTargetParentFolders,
+    isTrashOrIgnoredFolder
   };
 }

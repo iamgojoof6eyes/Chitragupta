@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Chitragupta — AI Chrome Bookmark Organizer",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Smart Chrome Bookmark Organizer powered by Hybrid Rules and AI. One-click save, automated folder categorization, preview, and safe undo.",
   "permissions": [
     "bookmarks",
@@ -52,11 +52,5 @@
       },
       "description": "Quickly save current tab as bookmark"
     }
-  },
-  "web_accessible_resources": [
-    {
-      "resources": ["original_bookmarks_restoration.json"],
-      "matches": ["<all_urls>"]
-    }
-  ]
+  }
 }

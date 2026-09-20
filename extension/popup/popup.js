@@ -30,13 +30,23 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tagPills = document.getElementById('tag-pills');
   const inputTags = document.getElementById('input-tags');
   const btnSaveBookmark = document.getElementById('btn-save-bookmark');
+  const aiFolderBadge = document.getElementById('ai-folder-badge');
+  const aiFolderHint = document.getElementById('ai-folder-hint');
+  const saveAlreadyExistsBanner = document.getElementById('save-already-exists-banner');
+  const saveAlreadyExistsDetail = document.getElementById('save-already-exists-detail');
+  const saveAlreadyExistsBadge = document.getElementById('save-already-exists-badge');
+  const btnViewExistingBookmark = document.getElementById('btn-view-existing-bookmark');
+  let activeTabExistingBookmark = null;
 
   // Tab 2 Elements (Organize)
   const statTotalBookmarks = document.getElementById('stat-total-bookmarks');
   const statTotalFolders = document.getElementById('stat-total-folders');
   const statDuplicates = document.getElementById('stat-duplicates');
   const selectScope = document.getElementById('select-scope');
+  const inputExcludedFolders = document.getElementById('input-excluded-folders');
   const checkCleanEmpty = document.getElementById('check-clean-empty');
+  const checkSortAlphabetical = document.getElementById('check-sort-alphabetical');
+  const btnSortNow = document.getElementById('btn-sort-now');
   const btnAnalyze = document.getElementById('btn-analyze');
   const organizeControls = document.getElementById('organize-controls');
   const organizeProgress = document.getElementById('organize-progress');
@@ -51,6 +61,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const pillNewFolders = document.getElementById('pill-new-folders');
   const pillMoves = document.getElementById('pill-moves');
   const pillDeletes = document.getElementById('pill-deletes');
+  const pillProtected = document.getElementById('pill-protected');
   const previewTreeList = document.getElementById('preview-tree-list');
   const btnCancelPlan = document.getElementById('btn-cancel-plan');
   const btnApplyPlan = document.getElementById('btn-apply-plan');
@@ -78,6 +89,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Tab 3 Elements (Explorer)
   const searchBookmarks = document.getElementById('search-bookmarks');
+  const btnSortTree = document.getElementById('btn-sort-tree');
   const btnRefreshTree = document.getElementById('btn-refresh-tree');
   const treeContainer = document.getElementById('tree-container');
 
@@ -146,32 +158,177 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // 4. Load Current Tab Data for Tab 1
+  // 4. Evaluate Active Page for Tab 1 (Duplicate Check & AI Folder Suggestion)
+  async function evaluateActivePage() {
+    const url = (inputUrl && inputUrl.value ? inputUrl.value : (currentActiveTab ? currentActiveTab.url : '')).trim();
+    const title = (inputTitle && inputTitle.value ? inputTitle.value : (currentActiveTab ? currentActiveTab.title : '')).trim() || 'Untitled Webpage';
+
+    if (!url) return;
+
+    const cleanUrl = (typeof normalizeUrl === 'function') ? normalizeUrl(url) : url.toLowerCase();
+
+    // 1. Check if website already exists in active bookmarks (strictly excluding trash or older folders)
+    let existing = null;
+    if (parsedTreeData && parsedTreeData.bookmarks) {
+      existing = parsedTreeData.bookmarks.find(b => {
+        // Strictly exclude Trash, Speed Dials, or older archive folders
+        if (typeof isTrashOrIgnoredFolder === 'function' && isTrashOrIgnoredFolder(b.folderPath)) {
+          return false;
+        }
+        const bClean = (typeof normalizeUrl === 'function') ? normalizeUrl(b.url) : (b.url || '').toLowerCase();
+        return bClean === cleanUrl;
+      });
+    }
+
+    activeTabExistingBookmark = existing;
+
+    // 2. If website ALREADY EXISTS in bookmarks:
+    if (existing) {
+      // Hide Save button
+      if (btnSaveBookmark) {
+        btnSaveBookmark.classList.add('hidden');
+        btnSaveBookmark.style.display = 'none';
+      }
+
+      // Show Already Exists Banner
+      if (saveAlreadyExistsBanner) {
+        saveAlreadyExistsBanner.classList.remove('hidden');
+        saveAlreadyExistsBanner.style.display = 'flex';
+      }
+
+      // Determine existing folder path
+      let folderName = 'Bookmarks Bar';
+      if (parsedTreeData && parsedTreeData.folders) {
+        const f = parsedTreeData.folders.find(fold => String(fold.id) === String(existing.parentId));
+        if (f) folderName = f.path.replace(/^Bookmarks bar\s*\/\s*/i, '');
+      }
+
+      if (saveAlreadyExistsDetail) {
+        saveAlreadyExistsDetail.innerHTML = `This website is already saved as <strong>${escapeHtml(existing.title || title)}</strong> in folder <strong style="color: var(--accent-move);">📁 ${escapeHtml(folderName)}</strong>.`;
+      }
+      if (saveAlreadyExistsBadge) {
+        saveAlreadyExistsBadge.textContent = 'In ' + folderName;
+      }
+
+      if (saveDetectedBadge) {
+        saveDetectedBadge.textContent = '✓ Already Saved';
+        saveDetectedBadge.style.background = 'rgba(234, 179, 8, 0.18)';
+        saveDetectedBadge.style.color = '#fde047';
+        saveDetectedBadge.style.borderColor = 'rgba(234, 179, 8, 0.4)';
+      }
+
+      // Set folder dropdown to where it currently is and disable it
+      if (selectFolder) {
+        selectFolder.value = existing.parentId || '1';
+        selectFolder.disabled = true;
+      }
+
+      if (aiFolderBadge) aiFolderBadge.style.display = 'none';
+      if (aiFolderHint) aiFolderHint.style.display = 'none';
+      return;
+    }
+
+    // 3. If website is NOT yet saved:
+    if (btnSaveBookmark) {
+      btnSaveBookmark.classList.remove('hidden');
+      btnSaveBookmark.style.display = 'flex';
+    }
+
+    if (saveAlreadyExistsBanner) {
+      saveAlreadyExistsBanner.classList.add('hidden');
+      saveAlreadyExistsBanner.style.display = 'none';
+    }
+
+    if (selectFolder) selectFolder.disabled = false;
+
+    // Run Rule & AI Classification
+    let classification = (typeof classifyWithRules === 'function')
+      ? classifyWithRules({ title, url, folderPath: '' })
+      : null;
+
+    if (!classification || classification.confidence < 0.85) {
+      try {
+        if (apiClient && typeof apiClient.classifyBatch === 'function') {
+          const aiBatch = await apiClient.classifyBatch([{
+            id: 'active_page',
+            title,
+            url,
+            folderPath: ''
+          }]);
+          if (aiBatch && aiBatch[0] && aiBatch[0].category) {
+            classification = aiBatch[0];
+          }
+        }
+      } catch (e) {}
+    }
+
+    if (!classification && typeof classifyHeuristic === 'function') {
+      classification = classifyHeuristic({ title, url });
+    }
+
+    if (classification) {
+      if (saveDetectedBadge) {
+        saveDetectedBadge.textContent = `${classification.category} / ${classification.subcategory}`;
+        saveDetectedBadge.style.background = '';
+        saveDetectedBadge.style.color = '';
+        saveDetectedBadge.style.borderColor = '';
+      }
+      renderTagPills(classification.tags || ['Web']);
+
+      // AI Folder Suggestion
+      const folders = (parsedTreeData && parsedTreeData.folders) ? parsedTreeData.folders : [];
+      const suggestion = (typeof suggestBookmarkFolder === 'function')
+        ? suggestBookmarkFolder(classification, folders)
+        : { isNew: false, existingFolderId: '1', folderTitle: 'Bookmarks Bar' };
+
+      populateFolderDropdowns(folders, suggestion);
+
+      if (aiFolderBadge) {
+        aiFolderBadge.style.display = 'inline-block';
+        if (suggestion.isNew) {
+          aiFolderBadge.textContent = '✨ AI Suggested: New Folder';
+          aiFolderBadge.title = `AI suggests creating folder "${suggestion.suggestedPath}"`;
+        } else {
+          aiFolderBadge.textContent = `✨ AI Suggested: ${suggestion.folderTitle}`;
+          aiFolderBadge.title = `Matched existing folder "${suggestion.folderPath}"`;
+        }
+      }
+
+      if (aiFolderHint) {
+        aiFolderHint.style.display = 'block';
+        if (suggestion.isNew) {
+          aiFolderHint.textContent = `Suggested category: "📁 ${suggestion.suggestedPath}" based on ${classification.category}.`;
+        } else {
+          const cleanP = (suggestion.folderPath || suggestion.folderTitle).replace(/^Bookmarks bar\s*\/\s*/i, '');
+          aiFolderHint.textContent = `Auto-selected existing folder "📁 ${cleanP}" for ${classification.category} / ${classification.subcategory}.`;
+        }
+      }
+    } else {
+      if (saveDetectedBadge) {
+        saveDetectedBadge.textContent = 'General Bookmark';
+        saveDetectedBadge.style.background = '';
+        saveDetectedBadge.style.color = '';
+        saveDetectedBadge.style.borderColor = '';
+      }
+      renderTagPills(['Web']);
+      const folders = (parsedTreeData && parsedTreeData.folders) ? parsedTreeData.folders : [];
+      populateFolderDropdowns(folders, null);
+      if (aiFolderBadge) aiFolderBadge.style.display = 'none';
+      if (aiFolderHint) aiFolderHint.style.display = 'none';
+    }
+  }
+
   async function loadCurrentTab() {
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tab) {
         currentActiveTab = tab;
-        inputTitle.value = tab.title || 'Untitled Webpage';
-        inputUrl.value = tab.url || '';
-        if (tab.favIconUrl) {
+        if (inputTitle) inputTitle.value = tab.title || 'Untitled Webpage';
+        if (inputUrl) inputUrl.value = tab.url || '';
+        if (tab.favIconUrl && pageFavicon) {
           pageFavicon.src = tab.favIconUrl;
         }
-
-        // Run fast rule classification on active page
-        const ruleMatch = classifyWithRules({
-          title: tab.title,
-          url: tab.url,
-          folderPath: ''
-        });
-
-        if (ruleMatch) {
-          saveDetectedBadge.textContent = `${ruleMatch.category} / ${ruleMatch.subcategory}`;
-          renderTagPills(ruleMatch.tags || []);
-        } else {
-          saveDetectedBadge.textContent = 'General Bookmark';
-          renderTagPills(['Web']);
-        }
+        await evaluateActivePage();
       }
     } catch (err) {
       console.warn('Could not query active tab:', err);
@@ -179,6 +336,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function renderTagPills(tags) {
+    if (!tagPills) return;
     tagPills.innerHTML = '';
     tags.forEach(tag => {
       const pill = document.createElement('span');
@@ -199,8 +357,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       statTotalFolders.textContent = parsedTreeData.folders.filter(f => !f.isSystem).length;
       statDuplicates.textContent = parsedTreeData.duplicates.length;
 
-      // Populate Folder Selectors
-      populateFolderDropdowns(parsedTreeData.folders);
+      // Populate Scope Dropdown
       populateScopeDropdown(parsedTreeData.folders);
 
       // Render Tree Explorer
@@ -208,27 +365,92 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       // Check Saved Baseline / Rollback Status
       await updateSavedBaselineStatus();
+      await updatePreviousBackupStatus();
+      await loadUserSettings();
+
+      // If active tab is loaded, re-evaluate duplicate status and AI suggestions
+      if (currentActiveTab) {
+        await evaluateActivePage();
+      }
     } catch (err) {
       console.error('Error refreshing bookmarks:', err);
       showToast('Error reading bookmarks', 'error');
     }
   }
 
-  function populateFolderDropdowns(folders) {
-    selectFolder.innerHTML = `
-      <option value="1">📌 Bookmarks Bar (Root)</option>
-    `;
+  // Load and sync user settings (excluded folders & alphabetical sort)
+  async function loadUserSettings() {
+    try {
+      const stored = await chrome.storage.local.get(['chitragupta_user_settings']);
+      const settings = stored.chitragupta_user_settings || {};
+      if (inputExcludedFolders && settings.excludedFolders !== undefined) {
+        inputExcludedFolders.value = settings.excludedFolders;
+      }
+      if (checkSortAlphabetical && settings.sortAlphabetical !== undefined) {
+        checkSortAlphabetical.checked = Boolean(settings.sortAlphabetical);
+      }
+    } catch (e) {}
+  }
 
-    // Add only user folders within Bookmarks Bar
-    folders.forEach(f => {
-      if (!f.isSystem && f.id !== '1' && f.id !== '2' && f.id !== '3') {
+  if (inputExcludedFolders) {
+    inputExcludedFolders.addEventListener('change', async () => {
+      try {
+        const stored = await chrome.storage.local.get(['chitragupta_user_settings']);
+        const settings = stored.chitragupta_user_settings || {};
+        settings.excludedFolders = inputExcludedFolders.value.trim();
+        await chrome.storage.local.set({ chitragupta_user_settings: settings });
+        showToast('Protected folders updated', 'success');
+      } catch (e) {}
+    });
+  }
+
+  if (checkSortAlphabetical) {
+    checkSortAlphabetical.addEventListener('change', async () => {
+      try {
+        const stored = await chrome.storage.local.get(['chitragupta_user_settings']);
+        const settings = stored.chitragupta_user_settings || {};
+        settings.sortAlphabetical = checkSortAlphabetical.checked;
+        await chrome.storage.local.set({ chitragupta_user_settings: settings });
+      } catch (e) {}
+    });
+  }
+
+  function populateFolderDropdowns(folders, suggestedTarget = null) {
+    if (!selectFolder) return;
+    selectFolder.innerHTML = '';
+
+    // If AI suggestion proposes creating a new folder, add it prominently at the top
+    if (suggestedTarget && suggestedTarget.isNew && suggestedTarget.suggestedPath) {
+      const optNew = document.createElement('option');
+      optNew.value = `__NEW__:${suggestedTarget.suggestedPath}`;
+      optNew.textContent = `✨ Create New: 📁 ${suggestedTarget.suggestedPath}`;
+      optNew.selected = true;
+      selectFolder.appendChild(optNew);
+    }
+
+    // Root Bookmarks Bar option
+    const optRoot = document.createElement('option');
+    optRoot.value = '1';
+    optRoot.textContent = '📌 Bookmarks Bar (Root)';
+    selectFolder.appendChild(optRoot);
+
+    // Existing user folders
+    (folders || []).forEach(f => {
+      if (!f.isSystem && f.id !== '0' && f.id !== '1' && f.id !== '2' && f.id !== '3') {
         const opt = document.createElement('option');
-        opt.value = f.id;
+        opt.value = String(f.id);
         const cleanName = f.path.replace(/^Bookmarks bar\s*\/\s*/i, '');
         opt.textContent = `📁 ${cleanName}`;
         selectFolder.appendChild(opt);
       }
     });
+
+    // Select existing suggested folder if matched
+    if (suggestedTarget && !suggestedTarget.isNew && suggestedTarget.existingFolderId) {
+      selectFolder.value = String(suggestedTarget.existingFolderId);
+    } else if (!suggestedTarget || !suggestedTarget.isNew) {
+      if (!selectFolder.value) selectFolder.value = '1';
+    }
   }
 
   function populateScopeDropdown(folders) {
@@ -324,6 +546,52 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // Reorder Bookmarks Alphabetically (A-Z)
+  async function handleReorderAlphabetical() {
+    const scopeId = (selectScope && selectScope.value && selectScope.value !== '0') ? selectScope.value : '1';
+    
+    if (btnSortNow) {
+      btnSortNow.disabled = true;
+      btnSortNow.textContent = 'Sorting...';
+    }
+    if (btnSortTree) {
+      btnSortTree.disabled = true;
+    }
+
+    try {
+      showToast('Reordering bookmarks alphabetically (A-Z)...', 'success');
+      if (typeof sortBookmarksAlphabetically === 'function') {
+        const result = await sortBookmarksAlphabetically(scopeId, { recursive: true });
+        showToast(`Alphabetical reorder complete! (${result.sortedNodes} items organized)`, 'success');
+      } else {
+        throw new Error('sortBookmarksAlphabetically function not available');
+      }
+      await refreshBookmarkData();
+    } catch (err) {
+      console.error('Error sorting bookmarks alphabetically:', err);
+      showToast('Reorder failed: ' + (err.message || err), 'error');
+    } finally {
+      if (btnSortNow) {
+        btnSortNow.disabled = false;
+        btnSortNow.innerHTML = `
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h7M3 12h5M3 18h3M15 6l6 6-6 6M21 12H11"></path></svg>
+          Reorder A-Z
+        `;
+      }
+      if (btnSortTree) {
+        btnSortTree.disabled = false;
+      }
+    }
+  }
+
+  if (btnSortNow) {
+    btnSortNow.addEventListener('click', handleReorderAlphabetical);
+  }
+
+  if (btnSortTree) {
+    btnSortTree.addEventListener('click', handleReorderAlphabetical);
+  }
+
   // Export Current Bookmark Tree to JSON
   const btnQuickExportJson = document.getElementById('btn-quick-export-json');
   if (btnQuickExportJson) {
@@ -347,25 +615,63 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Restore All 16 Original Folders from Clean Snapshot
-  const btnRestorePristine = document.getElementById('btn-restore-pristine');
-  if (btnRestorePristine) {
-    btnRestorePristine.addEventListener('click', async () => {
-      btnRestorePristine.disabled = true;
-      btnRestorePristine.textContent = 'Restoring...';
+  // Restore Bookmarks to the structure immediately preceding the last reorganization
+  const btnRestorePrevious = document.getElementById('btn-restore-previous') || document.getElementById('btn-restore-pristine');
+
+  async function updatePreviousBackupStatus() {
+    if (!btnRestorePrevious) return;
+    try {
+      const backup = (typeof getLastBackup === 'function') ? await getLastBackup() : null;
+      if (backup && (backup.treeSnapshot || (backup.originalLocations && backup.originalLocations.length > 0))) {
+        const timeStr = backup.formattedDate ? ` (${backup.formattedDate})` : '';
+        btnRestorePrevious.disabled = false;
+        btnRestorePrevious.title = `Restore bookmarks to structure immediately prior to last reorganization${timeStr}.`;
+        btnRestorePrevious.style.opacity = '1';
+        btnRestorePrevious.style.cursor = 'pointer';
+      } else {
+        btnRestorePrevious.disabled = true;
+        btnRestorePrevious.title = 'No previous reorganization backup found yet. Run an organization first.';
+        btnRestorePrevious.style.opacity = '0.5';
+        btnRestorePrevious.style.cursor = 'not-allowed';
+      }
+    } catch (e) {
+      console.warn('Could not check last backup status:', e);
+    }
+  }
+
+  if (btnRestorePrevious) {
+    btnRestorePrevious.addEventListener('click', async () => {
+      btnRestorePrevious.disabled = true;
+      const originalHtml = btnRestorePrevious.innerHTML;
+      btnRestorePrevious.textContent = 'Restoring...';
+
       try {
-        const resp = await fetch(chrome.runtime.getURL('original_bookmarks_restoration.json'));
-        if (!resp.ok) throw new Error('Could not load restoration snapshot file.');
-        const pristineTree = await resp.json();
-        const res = await restoreFromTreeSnapshot(pristineTree);
-        showToast(`Successfully restored ${res.totalRestored} bookmarks across ${res.foldersRestored} original folders!`, 'success');
+        const backup = (typeof getLastBackup === 'function') ? await getLastBackup() : null;
+        if (!backup) {
+          throw new Error('No previous reorganization backup found to restore.');
+        }
+
+        const res = (typeof undoLastOrganization === 'function')
+          ? await undoLastOrganization()
+          : null;
+
+        if (!res || !res.success) {
+          throw new Error('Failed to restore previous structure.');
+        }
+
+        const timeStr = res.backupTime ? ` from ${res.backupTime}` : '';
+        showToast(`Restored previous structure${timeStr}! (${res.restoredCount} bookmarks across ${res.foldersRestored} folders)`, 'success');
+        currentProposedPlan = null;
+        if (organizePreview) organizePreview.classList.add('hidden');
+        if (organizeControls) organizeControls.classList.remove('hidden');
         await refreshBookmarkData();
       } catch (err) {
-        console.error('Error restoring pristine bookmarks:', err);
-        showToast('Restoration error: ' + err.message, 'error');
+        console.error('Error restoring previous structure:', err);
+        showToast('Restoration error: ' + (err.message || err), 'error');
       } finally {
-        btnRestorePristine.disabled = false;
-        btnRestorePristine.textContent = 'Restore 16 Folders';
+        btnRestorePrevious.disabled = false;
+        btnRestorePrevious.innerHTML = originalHtml;
+        await updatePreviousBackupStatus();
       }
     });
   }
@@ -406,21 +712,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnSaveBookmark.textContent = 'Saving...';
 
     try {
-      let targetFolderId = selectFolder.value;
+      let targetFolderId = selectFolder ? selectFolder.value : '1';
 
-      if (targetFolderId === 'default') {
-        // Find or create 'AI Bookmarks'
-        const barFolders = parsedTreeData.folders.filter(f => f.parentId === '1');
-        const aiFolder = barFolders.find(f => f.title.toLowerCase() === 'ai bookmarks');
-        if (aiFolder) {
-          targetFolderId = aiFolder.id;
-        } else {
-          const created = await chrome.bookmarks.create({
-            parentId: '1',
-            title: 'AI Bookmarks'
-          });
-          targetFolderId = created.id;
+      if (targetFolderId && targetFolderId.startsWith('__NEW__:')) {
+        const pathStr = targetFolderId.replace('__NEW__:', '').trim();
+        const segments = pathStr.split('/').map(s => s.trim()).filter(Boolean);
+        let currParent = '1';
+        for (const seg of segments) {
+          const children = await chrome.bookmarks.getChildren(currParent);
+          const found = children.find(c => !c.url && c.title.toLowerCase() === seg.toLowerCase());
+          if (found) {
+            currParent = String(found.id);
+          } else {
+            const created = await chrome.bookmarks.create({ parentId: currParent, title: seg });
+            currParent = String(created.id);
+          }
         }
+        targetFolderId = currParent;
+      } else if (targetFolderId === 'default' || !targetFolderId) {
+        targetFolderId = '1';
       }
 
       await chrome.bookmarks.create({
@@ -431,9 +741,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       showToast('Bookmark saved successfully!', 'success');
       await refreshBookmarkData();
+      await evaluateActivePage();
     } catch (err) {
       console.error('Failed to save bookmark:', err);
-      showToast('Could not save bookmark', 'error');
+      showToast('Could not save bookmark: ' + (err.message || err), 'error');
     } finally {
       btnSaveBookmark.disabled = false;
       btnSaveBookmark.innerHTML = `
@@ -443,10 +754,47 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  // Action for "Show in Explorer" from Already Exists banner
+  if (btnViewExistingBookmark) {
+    btnViewExistingBookmark.addEventListener('click', () => {
+      switchToTab('tab-explore');
+      if (activeTabExistingBookmark) {
+        const q = activeTabExistingBookmark.title || activeTabExistingBookmark.url || '';
+        if (searchBookmarks) searchBookmarks.value = q;
+        if (rawBookmarkTree) {
+          renderExplorerTree(rawBookmarkTree, q);
+        }
+      }
+    });
+  }
+
+  // Live URL input listener to re-evaluate duplicate status and AI suggestions
+  if (inputUrl) {
+    let debounceTimer;
+    inputUrl.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        evaluateActivePage();
+      }, 300);
+    });
+  }
+
   // 8. Analyze & Propose Organization Plan (Tab 2)
   btnAnalyze.addEventListener('click', async () => {
     const scopeId = selectScope.value;
     const cleanEmpty = checkCleanEmpty.checked;
+    const sortAlphabetical = checkSortAlphabetical ? checkSortAlphabetical.checked : false;
+
+    // Persist current excluded folders and sort setting before starting analysis
+    try {
+      const stored = await chrome.storage.local.get(['chitragupta_user_settings']);
+      const settings = stored.chitragupta_user_settings || {};
+      if (inputExcludedFolders) {
+        settings.excludedFolders = inputExcludedFolders.value.trim();
+      }
+      settings.sortAlphabetical = sortAlphabetical;
+      await chrome.storage.local.set({ chitragupta_user_settings: settings });
+    } catch (e) {}
 
     organizeControls.classList.add('hidden');
     organizePreview.classList.add('hidden');
@@ -458,7 +806,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       const response = await chrome.runtime.sendMessage({
         action: 'START_ANALYSIS',
         scopeId,
-        cleanEmpty
+        cleanEmpty,
+        sortAlphabetical
       });
 
       if (response && response.success && response.planData) {
@@ -482,28 +831,53 @@ document.addEventListener('DOMContentLoaded', async () => {
           throw new Error('No bookmarks found in Bookmarks Bar.');
         }
 
-        const totalBms = scopeData.bookmarks.length;
+        const stored = await chrome.storage.local.get(['chitragupta_user_settings']);
+        const userSettings = stored.chitragupta_user_settings || {};
+        const excludedList = (typeof parseExcludedFolderNames === 'function')
+          ? parseExcludedFolderNames(userSettings.excludedFolders)
+          : (userSettings.excludedFolders || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+
+        // Partition bookmarks: preserve protected folders untouched
+        const bookmarksToClassify = [];
+        const protectedBookmarks = [];
+        for (const b of scopeData.bookmarks) {
+          const isEx = (typeof isFolderExcluded === 'function')
+            ? isFolderExcluded(null, b.folderPath, excludedList)
+            : false;
+          if (isEx) {
+            protectedBookmarks.push({
+              ...b,
+              classification: { category: 'Protected', subcategory: 'Untouched', confidence: 1.0 }
+            });
+          } else {
+            bookmarksToClassify.push(b);
+          }
+        }
+
+        const totalBms = bookmarksToClassify.length;
         updateProgressBar(20, 'Classifying Bookmarks...', `Classifying bookmarks (0/${totalBms} done, ${totalBms} left)...`, 0, totalBms);
 
-        const classified = await classifyBookmarks(scopeData.bookmarks, {
+        const classifiedActive = totalBms > 0 ? await classifyBookmarks(bookmarksToClassify, {
           onProgress: (done, total) => {
             const left = Math.max(0, total - done);
             const pct = Math.round(15 + (done / total) * 70);
             updateProgressBar(pct, 'Classifying Bookmarks...', `Classifying bookmarks (${done}/${total} done, ${left} left)...`, done, total);
           },
           aiClient: async (ambiguous, onChunk) => apiClient.classifyBatch(ambiguous, onChunk)
-        });
+        }) : [];
+
+        const classified = [...classifiedActive, ...protectedBookmarks];
 
         updateProgressBar(88, 'Generating Plan...', 'Building proposed folder hierarchy...', totalBms, totalBms);
 
-        const stored = await chrome.storage.local.get(['chitragupta_user_settings']);
-        const userSettings = stored.chitragupta_user_settings || {};
         const plan = generateOrganizationPlan(classified, scopeData.folders, {
           targetParentId: '1',
           maxDepth: parseInt(userSettings.maxDepth, 10) || 2,
           minBookmarksPerFolder: parseInt(userSettings.minBookmarks, 10) || 2,
           mergeSingleItemSubfolders: userSettings.mergeSingleItemSubfolders !== false,
-          cleanEmptyFolders: cleanEmpty !== false
+          cleanEmptyFolders: cleanEmpty !== false,
+          excludedFolders: userSettings.excludedFolders,
+          sortAlphabetical: sortAlphabetical
         });
 
         currentProposedPlan = {
@@ -534,6 +908,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     pillMoves.textContent = `→ ${plan.moves.length} Moves`;
     pillDeletes.textContent = `- ${plan.foldersToDelete.length} Clean`;
 
+    const protectedCount = (plan.stats && plan.stats.protectedCount) || 0;
+    if (pillProtected) {
+      if (protectedCount > 0 || (plan.protectedFolderNames && plan.protectedFolderNames.length > 0)) {
+        pillProtected.textContent = `🔒 ${protectedCount} Protected`;
+        pillProtected.classList.remove('hidden');
+        pillProtected.title = `${protectedCount} bookmarks in protected folders will NOT be moved or deleted.`;
+      } else {
+        pillProtected.classList.add('hidden');
+      }
+    }
+
     // Show background banner if arrangement was finished while popup was closed
     if (previewBackgroundBanner) {
       if (isFromBackground) {
@@ -550,15 +935,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     previewTreeList.innerHTML = '';
 
     if (totalChanges === 0) {
+      const extraMsg = protectedCount > 0 ? ` (${protectedCount} in protected exception folders kept untouched)` : '';
       previewTreeList.innerHTML = `
         <div style="text-align: center; color: var(--text-muted); padding: 20px 0;">
-          🎉 All bookmarks in Bookmarks Bar are already perfectly organized!
+          🎉 All bookmarks in Bookmarks Bar are already perfectly organized!${extraMsg}
         </div>
       `;
       btnApplyPlan.disabled = true;
       return;
     }
     btnApplyPlan.disabled = false;
+
+    // Show protected folders notice if applicable
+    if (plan.protectedFolderNames && plan.protectedFolderNames.length > 0) {
+      plan.protectedFolderNames.forEach(folderName => {
+        const item = document.createElement('div');
+        item.className = 'preview-item-protected';
+        item.innerHTML = `
+          <span>🔒</span>
+          <span><strong>${escapeHtml(folderName)}</strong> (Protected Exception — untouched)</span>
+        `;
+        previewTreeList.appendChild(item);
+      });
+    }
 
     // Show planned new folders
     plan.newFolders.forEach(f => {
@@ -866,7 +1265,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Initial Load
   await checkBackendStatus();
-  await loadCurrentTab();
   await refreshBookmarkData();
+  await loadCurrentTab();
   await checkPendingBackgroundState();
 });

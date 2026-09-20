@@ -139,13 +139,37 @@ async function performBackgroundAnalysis(scopeId = '1', cleanEmpty = true) {
 
     if (abortSignal.aborted) throw new Error('Arranging was cancelled by user.');
 
-    const totalCount = scopeData.bookmarks.length;
+    // Read user settings to detect protected/excluded folders (e.g. CDH)
+    const stored = await chrome.storage.local.get(['chitragupta_user_settings']);
+    const userSettings = stored.chitragupta_user_settings || {};
+    const excludedList = parseExcludedFolderNames(userSettings.excludedFolders);
+
+    // Partition bookmarks: bookmarks in excluded folders are kept 100% untouched
+    const bookmarksToClassify = [];
+    const protectedBookmarks = [];
+
+    for (const b of scopeData.bookmarks) {
+      if (isFolderExcluded(null, b.folderPath, excludedList)) {
+        protectedBookmarks.push({
+          ...b,
+          classification: { category: 'Protected', subcategory: 'Untouched', confidence: 1.0, reason: 'Protected exception folder' }
+        });
+      } else {
+        bookmarksToClassify.push(b);
+      }
+    }
+
+    const totalCount = bookmarksToClassify.length;
+    const protectedCount = protectedBookmarks.length;
+    const progressStartMsg = protectedCount > 0
+      ? `Read ${scopeData.bookmarks.length} bookmarks (${protectedCount} in protected folders). Starting classification...`
+      : `Read ${totalCount} bookmarks. Starting classification (0/${totalCount} done, ${totalCount} left)...`;
 
     await chrome.storage.local.set({
       chitragupta_analysis_state: {
         status: 'running',
         percent: 10,
-        statusMsg: `Read ${totalCount} bookmarks. Starting classification (0/${totalCount} done, ${totalCount} left)...`,
+        statusMsg: progressStartMsg,
         doneCount: 0,
         totalCount,
         remainingCount: totalCount
@@ -154,14 +178,14 @@ async function performBackgroundAnalysis(scopeId = '1', cleanEmpty = true) {
     chrome.runtime.sendMessage({
       action: 'ANALYSIS_PROGRESS',
       percent: 10,
-      statusMsg: `Read ${totalCount} bookmarks. Starting classification (0/${totalCount} done, ${totalCount} left)...`,
+      statusMsg: progressStartMsg,
       doneCount: 0,
       totalCount,
       remainingCount: totalCount
     }).catch(() => {});
 
-    // Classify using hybrid rules + AI with real-time fine-grained progress callback and abort signal
-    const classified = await classifyBookmarks(scopeData.bookmarks, {
+    // Classify non-protected bookmarks using hybrid rules + AI
+    const classifiedActive = totalCount > 0 ? await classifyBookmarks(bookmarksToClassify, {
       onProgress: (done, total) => {
         if (abortSignal.aborted) return;
         const remaining = Math.max(0, total - done);
@@ -197,7 +221,10 @@ async function performBackgroundAnalysis(scopeId = '1', cleanEmpty = true) {
           return null;
         }
       }
-    });
+    }) : [];
+
+    // Recombine active and protected bookmarks
+    const classified = [...classifiedActive, ...protectedBookmarks];
 
     if (abortSignal.aborted) throw new Error('Arranging was cancelled by user.');
 
@@ -220,16 +247,14 @@ async function performBackgroundAnalysis(scopeId = '1', cleanEmpty = true) {
       remainingCount: 0
     }).catch(() => {});
 
-    // Read user settings
-    const stored = await chrome.storage.local.get(['chitragupta_user_settings']);
-    const userSettings = stored.chitragupta_user_settings || {};
-
     const plan = generateOrganizationPlan(classified, scopeData.folders, {
       targetParentId: '1',
       maxDepth: parseInt(userSettings.maxDepth, 10) || 2,
       minBookmarksPerFolder: parseInt(userSettings.minBookmarks, 10) || 2,
       mergeSingleItemSubfolders: userSettings.mergeSingleItemSubfolders !== false,
-      cleanEmptyFolders: cleanEmpty !== false
+      cleanEmptyFolders: cleanEmpty !== false,
+      excludedFolders: userSettings.excludedFolders,
+      sortAlphabetical: userSettings.sortAlphabetical === true
     });
 
     if (abortSignal.aborted) throw new Error('Arranging was cancelled by user.');
@@ -265,9 +290,13 @@ async function performBackgroundAnalysis(scopeId = '1', cleanEmpty = true) {
     const foldersCount = plan.newFolders ? plan.newFolders.length : 0;
     const totalChanges = movesCount + foldersCount + (plan.foldersToDelete ? plan.foldersToDelete.length : 0);
 
+    const protectedTag = (plan.protectedFolderNames && plan.protectedFolderNames.length > 0)
+      ? ` (${plan.protectedFolderNames.join(', ')} protected)`
+      : '';
+
     const notifMsg = totalChanges > 0
-      ? `Arranging done: ${movesCount} moves across ${foldersCount} categories proposed. Click to review & apply!`
-      : 'Arranging done: All bookmarks in Bookmarks Bar are already organized!';
+      ? `Arranging done: ${movesCount} moves across ${foldersCount} categories proposed${protectedTag}. Click to review & apply!`
+      : `Arranging done: All bookmarks in Bookmarks Bar are already organized!${protectedTag}`;
 
     chrome.notifications.create('chitragupta_arranging_done_' + Date.now(), {
       type: 'basic',

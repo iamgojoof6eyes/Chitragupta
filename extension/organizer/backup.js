@@ -113,16 +113,6 @@ async function undoLastOrganization() {
   let snapshotToRestore = null;
   if (hasValidSnapshot) {
     snapshotToRestore = backup.treeSnapshot;
-  } else if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL) {
-    // Fallback to pristine restoration file if treeSnapshot was missing
-    try {
-      const resp = await fetch(chrome.runtime.getURL('original_bookmarks_restoration.json'));
-      if (resp.ok) {
-        snapshotToRestore = await resp.json();
-      }
-    } catch (e) {
-      console.warn('Could not load pristine restoration file:', e);
-    }
   }
 
   let res;
@@ -192,6 +182,15 @@ async function restoreFromOriginalLocations(backup) {
 
   // Map of original folder ID -> newly recreated folder ID (if folder was deleted)
   const recreatedFolderIdMap = new Map();
+  const originalPathToParentIdMap = new Map();
+  for (const item of originalLocations) {
+    if (item.originalFolderPath && item.originalParentId) {
+      const normKey = item.originalFolderPath.split(' / ').map(s => s.trim().toLowerCase()).join(' / ');
+      if (normKey && !originalPathToParentIdMap.has(normKey)) {
+        originalPathToParentIdMap.set(normKey, String(item.originalParentId));
+      }
+    }
+  }
 
   // Step 2: Identify and recreate any missing folders
   const EXCLUDED_RESTORE_FOLDERS = new Set(['trash', 'speed dials', 'pinboard', 'unsorted bookmarks', 'unsynchronized pinboard']);
@@ -242,6 +241,9 @@ async function restoreFromOriginalLocations(backup) {
           existingFolderIds.add(currentParentId);
           currentPathToIdMap.set(accKey, currentParentId);
           currentFolderTitleToIdMap.set(seg.toLowerCase(), currentParentId);
+          if (originalPathToParentIdMap.has(accKey)) {
+            recreatedFolderIdMap.set(originalPathToParentIdMap.get(accKey), currentParentId);
+          }
           foldersRestored++;
         } catch (e) {
           console.warn(`Could not recreate folder "${seg}" under parent ${currentParentId}:`, e.message);
@@ -350,16 +352,9 @@ async function restoreFromOriginalLocations(backup) {
         // Check if folder exists
         const sub = await chrome.bookmarks.getSubTree(folderId);
         if (sub && sub[0]) {
-          // If folder still contains bookmarks that were NOT in backup, don't delete
           const children = sub[0].children || [];
           if (children.length === 0) {
             await chrome.bookmarks.remove(folderId);
-          } else {
-            // Check if only empty subfolders exist
-            const hasBookmarks = children.some(c => c.url);
-            if (!hasBookmarks) {
-              await chrome.bookmarks.removeTree(folderId);
-            }
           }
         }
       } catch (err) {
@@ -490,6 +485,15 @@ async function restoreFromTreeSnapshot(snapshot, createdFolderIds = []) {
           targetFolderId = existingFoldersByParentAndTitle.get(folderKey);
         } else if (node.id && existingFoldersById.has(String(node.id))) {
           targetFolderId = String(node.id);
+          const existingFolder = existingFoldersById.get(String(node.id));
+          if (existingFolder && String(existingFolder.parentId) !== String(currentParentId)) {
+            try {
+              await chrome.bookmarks.move(targetFolderId, { parentId: String(currentParentId) });
+              existingFolder.parentId = String(currentParentId);
+            } catch (e) {
+              console.warn(`Could not move folder "${node.title}" to parent ${currentParentId}:`, e);
+            }
+          }
         } else {
           try {
             const created = await chrome.bookmarks.create({
@@ -553,6 +557,7 @@ async function restoreFromTreeSnapshot(snapshot, createdFolderIds = []) {
   await dispatchSnapshot(snapshot, '1');
 
   // 4. Delete folders that were created during the organization run
+  // CRITICAL SAFETY: NEVER call removeTree. Only remove completely empty folders with chrome.bookmarks.remove.
   if (createdFolderIds && Array.isArray(createdFolderIds) && createdFolderIds.length > 0) {
     const toClean = [...createdFolderIds].reverse();
     for (const folderId of toClean) {
@@ -560,17 +565,9 @@ async function restoreFromTreeSnapshot(snapshot, createdFolderIds = []) {
       try {
         const sub = await chrome.bookmarks.getSubTree(folderId);
         if (sub && sub[0]) {
-          function hasBookmarks(n) {
-            if (n.url) return true;
-            if (n.children) return n.children.some(hasBookmarks);
-            return false;
-          }
-          if (!hasBookmarks(sub[0])) {
-            if (typeof chrome.bookmarks.removeTree === 'function') {
-              await chrome.bookmarks.removeTree(folderId);
-            } else {
-              await chrome.bookmarks.remove(folderId);
-            }
+          const children = sub[0].children || [];
+          if (children.length === 0) {
+            await chrome.bookmarks.remove(folderId);
           }
         }
       } catch {}
